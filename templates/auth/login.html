@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEDIP - Sign In</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-card {
+            width: 420px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel login-card">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-brain text-gradient fs-1 mb-2"></i>
+            <h2 class="text-gradient fw-bold">AEDIP Platform</h2>
+            <p class="text-secondary small">AI Enterprise Decision Intelligence Platform</p>
+        </div>
+        
+        <div class="alert alert-danger" id="loginAlert" style="display: none;"></div>
+        
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                    <i class="fa-solid fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control" id="loginEmail" placeholder="name@company.com">
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <input type="password" class="form-control" id="loginPassword" placeholder="••••••••">
+            </div>
+        </div>
+        
+        <button class="btn btn-glass-primary w-100 mb-3" onclick="submitLogin()">
+            <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
+        </button>
+        
+        <p class="text-center text-secondary small mb-0">
+            Don't have an account? <a href="/auth/register-page/" class="text-decoration-none text-gradient fw-semibold">Register here</a>
+        </p>
+    </div>
+
+    <script>
+        function submitLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const alertBox = document.getElementById('loginAlert');
+            
+            if (!email || !password) {
+                alertBox.innerText = "Please fill in all fields.";
+                alertBox.style.display = "block";
+                return;
+            }
+            
+            fetch('/auth/api/login/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Login failed") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Set token cookie valid for 1 day
+                const d = new Date();
+                d.setTime(d.getTime() + (24*60*60*1000));
+                document.cookie = "access_token=" + data.token + ";expires=" + d.toUTCString() + ";path=/";
+                
+                // Backup in localStorage
+                localStorage.setItem('access_token', data.token);
+                
+                // Redirect
+                window.location.href = '/';
+            })
+            .catch(err => {
+                alertBox.innerText = err.message;
+                alertBox.style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>

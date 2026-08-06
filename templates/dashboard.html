@@ -1,0 +1,1438 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- ==================== TABS INJECTION ==================== -->
+
+<!-- 1. OVERVIEW DASHBOARD SECTION -->
+<div class="app-section" id="sect-dashboard">
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="glass-panel kpi-card">
+                <small class="text-secondary uppercase fw-bold">Active Datasets</small>
+                <h2 class="mb-0 fs-2 fw-bold text-gradient mt-2" id="kpi-datasets-count">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-panel kpi-card green">
+                <small class="text-secondary uppercase fw-bold">Trained ML Models</small>
+                <h2 class="mb-0 fs-2 fw-bold text-gradient mt-2" id="kpi-models-count">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-panel kpi-card red">
+                <small class="text-secondary uppercase fw-bold">Flagged Anomalies</small>
+                <h2 class="mb-0 fs-2 fw-bold text-gradient mt-2" id="kpi-anomalies-count">0</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-panel kpi-card purple">
+                <small class="text-secondary uppercase fw-bold">Avg Quality Score</small>
+                <h2 class="mb-0 fs-2 fw-bold text-gradient mt-2" id="kpi-quality-score">0.0%</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="glass-panel" style="height: 380px;">
+                <h4 class="mb-3">Workspace Brief & Guidelines</h4>
+                <p class="text-secondary">Welcome to the AI Enterprise Decision Intelligence Platform. This workspace acts as a central control room for translating raw operational statistics into strategic intelligence.</p>
+                <h5 class="mt-4 text-white">Recommended Workflow:</h5>
+                <ol class="text-secondary lh-lg">
+                    <li>Navigate to <b>Datasets</b> and upload your business spreadsheet (CSV/Excel).</li>
+                    <li>Clean the dataset using the <b>One-click pre-processing</b> engine.</li>
+                    <li>Inspect statistical properties and correlations in the <b>Automated EDA</b> panel.</li>
+                    <li>Train optimized classifiers or regressors in the <b>AutoML Engine</b>.</li>
+                    <li>Run forecasts or risk audits, ask NLP questions, and generate reports.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-panel" style="height: 380px; overflow-y: auto;">
+                <h4 class="mb-3">Recent Notifications</h4>
+                <div class="d-flex flex-column gap-2" id="dashboardNotificationsList">
+                    <p class="text-muted small text-center my-5">No recent alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. DATASETS SECTION -->
+<div class="app-section" id="sect-datasets" style="display: none;">
+    <div class="row g-4 mb-4">
+        <div class="col-md-5">
+            <div class="glass-panel">
+                <h4 class="mb-3">Upload Business Dataset</h4>
+                <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-cloud-arrow-up fs-2 text-gradient mb-3 d-block"></i>
+                    <span class="text-white fw-semibold">Drag & drop your files here</span>
+                    <span class="text-secondary small d-block mt-1">Supports CSV, XLS, XLSX (Max 50MB)</span>
+                    <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+                <div class="mt-3 progress" style="height: 6px; display: none;" id="uploadProgressBarContainer">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" id="uploadProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-7">
+            <div class="glass-panel" style="height: 285px; overflow-y: auto;">
+                <h4 class="mb-3">Workspace Files</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover border-secondary border-opacity-10">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Version</th>
+                                <th>Quality Score</th>
+                                <th>Uploaded</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="datasetsTableBody">
+                            <tr><td colspan="5" class="text-center text-muted">No datasets available</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Dataset Details Panel -->
+    <div class="glass-panel" id="datasetDetailPanel" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+            <div>
+                <h3 class="mb-0 text-white" id="detailDatasetName">dataset.csv</h3>
+                <span class="badge bg-primary mt-1" id="detailDatasetRowsCols">0 rows x 0 cols</span>
+            </div>
+            <button class="btn btn-glass-primary" onclick="triggerDatasetClean()">
+                <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Run Preprocessing Pipeline
+            </button>
+        </div>
+        
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <h5 class="text-gradient">Data Quality Index Summary</h5>
+                <ul class="list-group list-group-flush bg-transparent text-secondary mt-3">
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 d-flex justify-content-between">
+                        <span>Quality Score</span><strong class="text-white" id="detailDatasetScore">0/100</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 d-flex justify-content-between">
+                        <span>Duplicate Rows</span><strong class="text-white" id="detailDatasetDups">0</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 d-flex justify-content-between font-monospace" style="font-size:12px;">
+                        <span>Data Path</span><span class="text-truncate text-white" style="max-width:300px;" id="detailDatasetPath">/media</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="col-md-6">
+                <h5 class="text-gradient">Feature Engineering Suggestions</h5>
+                <div class="d-flex flex-column gap-2 mt-3" id="detailDatasetSuggestions">
+                    <span class="text-muted small">No suggestions generated</span>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="text-gradient mb-3">Dataset Preview Grid</h5>
+        <div class="table-responsive glass-panel p-2" id="gridTableContainer">
+            <!-- DataTable injected dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- 3. AUTOMATED EDA SECTION -->
+<div class="app-section" id="sect-eda" style="display: none;">
+    <div class="glass-panel mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h4>Statistical Profiles & Visualization</h4>
+            </div>
+            <div class="col-md-6 text-end">
+                <select class="form-select border-secondary border-opacity-25 d-inline-block" style="width: 250px;" id="edaDatasetSelector" onchange="loadEDAPanel()">
+                    <option value="" selected disabled>Select Active File...</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="edaMainContainer" style="display: none;">
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="glass-panel" style="height: 480px;">
+                    <h5 class="mb-3 text-gradient">Missing Values Heatmap</h5>
+                    <div id="edaMissingPlot" style="height: 400px; width: 100%;"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="glass-panel" style="height: 480px;">
+                    <h5 class="mb-3 text-gradient">Feature Correlation Matrix</h5>
+                    <div id="edaCorrPlot" style="height: 400px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="glass-panel" style="height: 400px;">
+                    <h5 class="mb-3 text-gradient">Feature Distribution</h5>
+                    <div class="mb-3">
+                        <select class="form-select border-secondary border-opacity-25" id="edaDistColSelector" onchange="loadDistChart()"></select>
+                    </div>
+                    <div id="edaDistPlot" style="height: 300px; width: 100%;"></div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="glass-panel" style="height: 400px; overflow-y: auto;">
+                    <h5 class="mb-3 text-gradient">Numerical Column Descriptions</h5>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover border-secondary border-opacity-10 small">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Mean</th>
+                                    <th>Std Dev</th>
+                                    <th>Median</th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Skewness</th>
+                                </tr>
+                            </thead>
+                            <tbody id="edaStatsTableBody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. AUTOML SECTION -->
+<div class="app-section" id="sect-automl" style="display: none;">
+    <div class="glass-panel mb-4">
+        <h4 class="mb-3">Train Automated ML Models</h4>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small">Target Feature (Column to Predict)</label>
+                <select class="form-select" id="automlTargetSelector"></select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-glass-primary w-100" id="btnRunAutoML" onclick="triggerAutoMLTraining()">
+                    <i class="fa-solid fa-play me-2"></i> Start AutoML Pipelines
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard & Charts -->
+    <div class="row g-4" id="automlLeaderboardContainer" style="display: none;">
+        <div class="col-md-6">
+            <div class="glass-panel" style="height: 520px; overflow-y: auto;">
+                <h5 class="mb-3 text-gradient">Model Performance Leaderboard</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover border-secondary border-opacity-10">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Sorting Score</th>
+                                <th>Metrics</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="automlLeaderboardBody">
+                            <!-- Loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-panel" style="height: 520px;">
+                <h5 class="mb-3 text-gradient">Optimal Model Feature Importance</h5>
+                <div id="automlImportancePlot" style="height: 450px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Predictions Modal -->
+    <div class="modal fade" id="automlPredictModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel p-4 border border-secondary border-opacity-25 text-white">
+                <div class="modal-header border-0 p-0 mb-3">
+                    <h5 class="modal-title fw-bold">Run Batch Prediction</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="mb-3">
+                        <label class="form-label small">Select Inference Dataset</label>
+                        <select class="form-select" id="automlPredictDatasetSelector"></select>
+                    </div>
+                    <div class="mb-3" id="predictResultsContainer" style="display: none;">
+                        <h6 class="text-gradient">Predictions Run Summary:</h6>
+                        <p class="small text-secondary" id="predictResultsText"></p>
+                        <hr class="border-secondary border-opacity-25">
+                        <h6 class="text-gradient">Explainability Contribution Preview:</h6>
+                        <pre class="bg-black bg-opacity-50 p-2 rounded text-info small" style="max-height: 150px; overflow-y: auto;" id="explainPreviewText"></pre>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-0 mt-3 d-flex gap-2">
+                    <button type="button" class="btn btn-glass-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-glass-primary" id="btnRunInference" onclick="runModelInference()">Run Inference</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. FORECASTING SECTION -->
+<div class="app-section" id="sect-forecasting" style="display: none;">
+    <div class="glass-panel mb-4">
+        <h4 class="mb-3">Configure Time-Series Forecasting</h4>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small">Date Column</label>
+                <select class="form-select" id="forecastDateSelector"></select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Target Metric Column</label>
+                <select class="form-select" id="forecastTargetSelector"></select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Horizon (Steps Ahead)</label>
+                <input type="number" class="form-control" id="forecastPeriods" value="12" min="1" max="60">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-glass-primary w-100" id="btnRunForecast" onclick="triggerForecasting()">
+                    <i class="fa-solid fa-chart-line me-2"></i> Compute Forecast
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast Results Charts -->
+    <div class="row g-4" id="forecastResultsContainer" style="display: none;">
+        <div class="col-md-8">
+            <div class="glass-panel" style="height: 480px;">
+                <h5 class="mb-3 text-gradient">Forecasting Model & Confidence Limits</h5>
+                <div id="forecastPlot" style="height: 400px; width: 100%;"></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-panel" style="height: 480px; overflow-y: auto;">
+                <h5 class="mb-3 text-gradient">Business Recommendation Summary</h5>
+                <div class="d-flex flex-column gap-3 mt-3" id="forecastRecList">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. ANOMALIES & RISK SECTION -->
+<div class="app-section" id="sect-anomalies" style="display: none;">
+    <div class="glass-panel mb-4">
+        <h4 class="mb-3">Unsupervised Anomaly & Fraud Diagnostics</h4>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small">Features to Analyze</label>
+                <select class="form-select" id="anomalyFeaturesSelector" multiple style="height: 70px;"></select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small">Expected Contamination (Ratio)</label>
+                <input type="range" class="form-range mt-2" id="anomalyContam" min="0.01" max="0.20" step="0.01" value="0.05">
+                <div class="text-secondary small mt-1 text-center">Ratio: <strong class="text-white" id="contamVal">5%</strong></div>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-glass-primary w-100" id="btnRunAnomaly" onclick="triggerAnomalyDetection()">
+                    <i class="fa-solid fa-shield-halved me-2"></i> Scan Anomalies
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Outliers lists -->
+    <div class="glass-panel" id="anomalyResultsContainer" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+            <div>
+                <h4 class="mb-0 text-white">Outliers Detected Overview</h4>
+                <small class="text-muted" id="anomalySummaryLabel">Total flagged anomalies: 0</small>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-dark table-hover border-secondary border-opacity-10 small">
+                <thead>
+                    <tr>
+                        <th>Row index</th>
+                        <th>Risk Score</th>
+                        <th>Scan parameters</th>
+                        <th>Values Detail</th>
+                    </tr>
+                </thead>
+                <tbody id="anomalyLeaderboardBody">
+                    <!-- Injected -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 7. NLP ANALYTICS SECTION -->
+<div class="app-section" id="sect-nlp" style="display: none;">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="glass-panel" style="height: 480px;">
+                <h5 class="mb-3 text-gradient">Ask business questions:</h5>
+                <ul class="list-group list-group-flush bg-transparent small lh-lg">
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 py-2">
+                        <code class="text-info cursor-pointer" onclick="clickNLPExample(this)">Why did sales decrease?</code>
+                    </li>
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 py-2">
+                        <code class="text-info cursor-pointer" onclick="clickNLPExample(this)">Which region has maximum profit?</code>
+                    </li>
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 py-2">
+                        <code class="text-info cursor-pointer" onclick="clickNLPExample(this)">Predict next month's sales.</code>
+                    </li>
+                    <li class="list-group-item bg-transparent text-secondary border-secondary border-opacity-25 py-2">
+                        <code class="text-info cursor-pointer" onclick="clickNLPExample(this)">Which product performs poorly?</code>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="glass-panel d-flex flex-column justify-content-between" style="height: 480px;">
+                <div class="chat-messages" id="nlpChatHistory">
+                    <div class="message-bubble ai">
+                        <span>Hello! Ask me any questions about the dataset, like regional performances, monthly declines, or predictive sales.</span>
+                    </div>
+                </div>
+                
+                <div class="input-group mt-3">
+                    <input type="text" class="form-control" placeholder="Ask about sales, profits, region performance..." id="nlpInput" onkeydown="if(event.key === 'Enter') submitNLPQuery()">
+                    <button class="btn btn-glass-primary" onclick="submitNLPQuery()" id="btnSendNLP">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NLP Visual Chart Container -->
+    <div class="glass-panel mt-4" id="nlpChartPanel" style="display: none;">
+        <h5 class="mb-3 text-gradient" id="nlpChartTitle">Query Visualization</h5>
+        <div id="nlpChartContainer" style="height: 380px; width: 100%;"></div>
+    </div>
+</div>
+
+<!-- 8. EXECUTIVE REPORTS SECTION -->
+<div class="app-section" id="sect-reports" style="display: none;">
+    <div class="glass-panel mb-4">
+        <h4 class="mb-3">Compile Executive Reports</h4>
+        <p class="text-secondary small">Assemble professional PDF briefings and PowerPoint slide presentations aggregating AutoML leaderboard ranks, time series trends, and outlier audits.</p>
+        <button class="btn btn-glass-primary px-4 py-2" id="btnCompileReport" onclick="triggerReportCompilation()">
+            <i class="fa-solid fa-file-export me-2"></i> Compile Reports & Slides
+        </button>
+    </div>
+
+    <div class="glass-panel">
+        <h4 class="mb-3">Workspace Reports Registry</h4>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover border-secondary border-opacity-10">
+                <thead>
+                    <tr>
+                        <th>Report Name</th>
+                        <th>Format</th>
+                        <th>Created</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                    <tr><td colspan="4" class="text-center text-muted">No reports compiled yet</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 9. AUDIT LOGS SECTION -->
+<div class="app-section" id="sect-audit-logs" style="display: none;">
+    <div class="glass-panel">
+        <h4 class="mb-3">System Activity & Security Logs</h4>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover border-secondary border-opacity-10 small">
+                <thead>
+                    <tr>
+                        <th>Timestamp (UTC)</th>
+                        <th>Action Code</th>
+                        <th>Details</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody id="auditLogsTableBody">
+                    <!-- Injected -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FRONTEND JS MODULE HOOKS ==================== -->
+<script>
+
+    // Handle Workspace changed event
+    function onWorkspaceChanged() {
+        currentDatasetId = null;
+        loadDatasetsList();
+        loadNotificationsList();
+    }
+
+    // Dynamic Contamination Slider label updating
+    document.getElementById('anomalyContam').addEventListener('input', function(e) {
+        document.getElementById('contamVal').innerText = Math.round(e.target.value * 100) + '%';
+    });
+
+    // 1. DATASETS LOGIC
+    function loadDatasetsList() {
+        if (!currentProjectId) return;
+        fetch(`/datasets/api/list/${currentProjectId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('datasetsTableBody');
+            tbody.innerHTML = '';
+            
+            const edaSelector = document.getElementById('edaDatasetSelector');
+            edaSelector.innerHTML = '<option value="" selected disabled>Select Active File...</option>';
+            
+            const predictDatasetSelector = document.getElementById('automlPredictDatasetSelector');
+            predictDatasetSelector.innerHTML = '<option value="" selected disabled>Select Inference Dataset...</option>';
+            
+            // Set KPI Count
+            document.getElementById('kpi-datasets-count').innerText = data.datasets ? data.datasets.length : 0;
+            
+            if (data.datasets && data.datasets.length > 0) {
+                let totalQual = 0;
+                
+                data.datasets.forEach(ds => {
+                    totalQual += ds.data_quality_score;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${ds.filename}</strong></td>
+                        <td>v${ds.version}</td>
+                        <td><span class="badge ${ds.data_quality_score >= 80 ? 'bg-success' : 'bg-warning'}">${ds.data_quality_score}%</span></td>
+                        <td class="small">${new Date(ds.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-outline-info btn-sm" onclick="loadDatasetDetail('${ds._id}')">
+                                <i class="fa-solid fa-magnifying-glass"></i> Select
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                    
+                    // Add options to selectors
+                    const opt = document.createElement('option');
+                    opt.value = ds._id;
+                    opt.innerText = ds.filename;
+                    
+                    const opt2 = opt.cloneNode(true);
+                    edaSelector.appendChild(opt);
+                    predictDatasetSelector.appendChild(opt2);
+                });
+                
+                // Update average Quality KPI
+                document.getElementById('kpi-quality-score').innerText = Math.round(totalQual / data.datasets.length) + '%';
+                
+                // Auto-select the first dataset if none is selected yet
+                if (!currentDatasetId && data.datasets.length > 0) {
+                    loadDatasetDetail(data.datasets[0]._id);
+                }
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No datasets available</td></tr>';
+                document.getElementById('kpi-quality-score').innerText = '0.0%';
+            }
+            
+            // Reload list dependencies like models & reports
+            loadModelsLeaderboard();
+            loadReportsList();
+        });
+    }
+
+    // Drag-and-drop file upload handlers
+    const dropzone = document.getElementById('dropzone');
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            uploadFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    function handleFileSelect(e) {
+        if (e.target.files.length > 0) {
+            uploadFile(e.target.files[0]);
+        }
+    }
+
+    function uploadFile(file) {
+        if (!currentProjectId) {
+            alert("Please create or select a workspace first.");
+            return;
+        }
+        
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('project_id', currentProjectId);
+        
+        // Show progress bar
+        const container = document.getElementById('uploadProgressBarContainer');
+        const bar = document.getElementById('uploadProgressBar');
+        container.style.display = 'block';
+        bar.style.width = '0%';
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/datasets/api/upload/');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + getCookie('access_token'));
+        
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+                const percent = (event.loaded / event.total) * 100;
+                bar.style.width = percent + '%';
+            }
+        };
+        
+        xhr.onload = () => {
+            container.style.display = 'none';
+            if (xhr.status === 201) {
+                loadDatasetsList();
+            } else {
+                const err = JSON.parse(xhr.responseText);
+                alert("Upload failed: " + (err.error || "Unknown error"));
+            }
+        };
+        xhr.send(fd);
+    }
+
+    function loadDatasetDetail(dsId) {
+        currentDatasetId = dsId;
+        fetch(`/datasets/api/detail/${dsId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const panel = document.getElementById('datasetDetailPanel');
+            panel.style.display = 'block';
+            
+            const ds = data.dataset;
+            document.getElementById('detailDatasetName').innerText = ds.filename;
+            document.getElementById('detailDatasetRowsCols').innerText = `${ds.metadata.row_count} rows x ${ds.metadata.column_count} columns`;
+            document.getElementById('detailDatasetScore').innerText = `${ds.data_quality_score}/100`;
+            document.getElementById('detailDatasetDups').innerText = ds.metadata.duplicate_count;
+            document.getElementById('detailDatasetPath').innerText = ds.file_path;
+            
+            // Set suggestions
+            const sugBox = document.getElementById('detailDatasetSuggestions');
+            sugBox.innerHTML = '';
+            if (ds.metadata.suggestions && ds.metadata.suggestions.length > 0) {
+                ds.metadata.suggestions.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 rounded bg-opacity-25 bg-primary text-white border-start border-primary border-4 small';
+                    div.innerText = s.suggestion;
+                    sugBox.appendChild(div);
+                });
+            } else {
+                sugBox.innerHTML = '<span class="text-muted small">No suggestions generated</span>';
+            }
+            
+            // Render Datatable Grid
+            renderDataGrid(data.preview, ds.metadata.columns);
+            
+            // Populate form selectors across ML modules
+            populateMLSelectors(ds.metadata.columns, ds.metadata.schema);
+        });
+    }
+
+    function renderDataGrid(rows, cols) {
+        const container = document.getElementById('gridTableContainer');
+        container.innerHTML = '';
+        
+        const table = document.createElement('table');
+        table.className = "table table-dark table-striped table-hover mt-3 w-100 border border-secondary border-opacity-10";
+        table.id = "gridDataTable";
+        
+        // Build header
+        const thead = document.createElement('thead');
+        const tr_h = document.createElement('tr');
+        cols.forEach(col => {
+            const th = document.createElement('th');
+            th.innerText = col;
+            tr_h.appendChild(th);
+        });
+        thead.appendChild(tr_h);
+        table.appendChild(thead);
+        
+        // Build body
+        const tbody = document.createElement('tbody');
+        rows.forEach(row => {
+            const tr = document.createElement('tr');
+            cols.forEach(col => {
+                const td = document.createElement('td');
+                td.innerText = row[col] !== null ? row[col] : 'NaN';
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
+        
+        // Initialize jQuery DataTable
+        $(`#gridDataTable`).DataTable({
+            destroy: true,
+            pageLength: 5,
+            lengthMenu: [5, 10],
+            searching: false,
+            ordering: false
+        });
+    }
+
+    function triggerDatasetClean() {
+        if (!currentDatasetId) return;
+        const btn = event.currentTarget;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Preprocessing data...';
+        
+        fetch(`/datasets/api/clean/${currentDatasetId}/`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles me-2"></i> Run Preprocessing Pipeline';
+            
+            if (data.cleaned_quality_score) {
+                alert(`Data preprocessing pipeline completed.\nQuality score improved from ${data.original_quality_score}% to ${data.cleaned_quality_score}%!`);
+                loadDatasetDetail(currentDatasetId);
+                loadDatasetsList();
+            } else {
+                alert("Cleaning run failed: " + (data.error || "Unknown error"));
+            }
+        });
+    }
+
+    function populateMLSelectors(cols, schema) {
+        // Targets selectors
+        const automlSel = document.getElementById('automlTargetSelector');
+        const forecastTarg = document.getElementById('forecastTargetSelector');
+        const forecastDate = document.getElementById('forecastDateSelector');
+        const anomalyFeatures = document.getElementById('anomalyFeaturesSelector');
+        
+        automlSel.innerHTML = '';
+        forecastTarg.innerHTML = '';
+        forecastDate.innerHTML = '';
+        anomalyFeatures.innerHTML = '';
+        
+        cols.forEach(col => {
+            const opt = document.createElement('option');
+            opt.value = col;
+            opt.innerText = col;
+            
+            automlSel.appendChild(opt.cloneNode(true));
+            forecastTarg.appendChild(opt.cloneNode(true));
+            
+            // Anomaly multiselect only numericals
+            if (schema[col] && schema[col].semantic_type === 'numerical') {
+                const opt_a = opt.cloneNode(true);
+                opt_a.selected = true; // select by default
+                anomalyFeatures.appendChild(opt_a);
+            }
+            
+            // Forecast date selector (all columns, pre-selecting date-like if available)
+            const opt_d = opt.cloneNode(true);
+            forecastDate.appendChild(opt_d);
+            if (schema[col] && (schema[col].semantic_type === 'datetime' || col.toLowerCase().includes('date' ) || col.toLowerCase().includes('time'))) {
+                opt_d.selected = true;
+            }
+        });
+    }
+
+    // 2. EDA PLOTS
+    function loadEDAPanel() {
+        const dsId = document.getElementById('edaDatasetSelector').value;
+        if (!dsId) return;
+        
+        fetch(`/eda/api/summary/${dsId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('edaMainContainer').style.display = 'block';
+            
+            // 1. Populate stats table
+            const tbody = document.getElementById('edaStatsTableBody');
+            tbody.innerHTML = '';
+            
+            const distSelector = document.getElementById('edaDistColSelector');
+            distSelector.innerHTML = '';
+            
+            for (const [col, stats] of Object.entries(data.statistics.numerical)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${col}</strong></td>
+                    <td>${stats.mean}</td>
+                    <td>${stats.std}</td>
+                    <td>${stats.median}</td>
+                    <td>${stats.min}</td>
+                    <td>${stats.max}</td>
+                    <td>${stats.skewness}</td>
+                `;
+                tbody.appendChild(row);
+                
+                // Add option to distribution chart selector
+                const opt = document.createElement('option');
+                opt.value = col;
+                opt.innerText = col;
+                distSelector.appendChild(opt);
+            }
+            
+            // Add categorical options
+            for (const col of Object.keys(data.statistics.categorical)) {
+                const opt = document.createElement('option');
+                opt.value = col;
+                opt.innerText = col;
+                distSelector.appendChild(opt);
+            }
+            
+            // 2. Render missing heatmap
+            renderMissingHeatmap(data.missing_heatmap);
+            
+            // 3. Render Correlation Matrix
+            loadCorrelationMatrix(dsId);
+            
+            // 4. Load initial distribution chart
+            if (distSelector.options.length > 0) {
+                loadDistChart();
+            }
+        });
+    }
+
+    function renderMissingHeatmap(heatMapData) {
+        const cols = heatMapData.columns;
+        const totalRows = heatMapData.total_rows_sampled;
+        
+        // Construct matrix: rows x cols (0 for normal, 1 for missing)
+        const z = Array(totalRows).fill().map(() => Array(cols.length).fill(0));
+        
+        heatMapData.missing_map.forEach(item => {
+            item.cols.forEach(cIdx => {
+                z[item.row][cIdx] = 1;
+            });
+        });
+        
+        const data = [{
+            z: z,
+            x: cols,
+            y: Array.from({length: totalRows}, (_, i) => i),
+            type: 'heatmap',
+            colorscale: [[0, '#0f172a'], [1, '#ef4444']],
+            showscale: false
+        }];
+        
+        const layout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#94a3b8', size: 9 },
+            margin: { t: 10, b: 30, l: 30, r: 10 }
+        };
+        
+        Plotly.newPlot('edaMissingPlot', data, layout, {responsive: true});
+    }
+
+    function loadCorrelationMatrix(dsId) {
+        fetch(`/eda/api/correlation/${dsId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.columns && data.columns.length > 0) {
+                const plotData = [{
+                    z: data.matrix,
+                    x: data.columns,
+                    y: data.columns,
+                    type: 'heatmap',
+                    colorscale: 'RdBu',
+                    zmin: -1.0,
+                    zmax: 1.0
+                }];
+                
+                const layout = {
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: '#94a3b8', size: 9 },
+                    margin: { t: 10, b: 40, l: 40, r: 10 }
+                };
+                
+                Plotly.newPlot('edaCorrPlot', plotData, layout, {responsive: true});
+            } else {
+                document.getElementById('edaCorrPlot').innerHTML = '<div class="text-center text-muted py-5">Correlation plot unavailable (requires >1 numerical columns)</div>';
+            }
+        });
+    }
+
+    function loadDistChart() {
+        const dsId = document.getElementById('edaDatasetSelector').value;
+        const col = document.getElementById('edaDistColSelector').value;
+        if (!dsId || !col) return;
+        
+        fetch(`/eda/api/chart/${dsId}/${col}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const plotData = [{
+                x: data.labels,
+                y: data.values,
+                type: data.type === 'numerical' ? 'bar' : 'bar',
+                marker: { color: '#3b82f6' }
+            }];
+            
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#94a3b8', size: 9 },
+                margin: { t: 10, b: 40, l: 40, r: 10 }
+            };
+            
+            Plotly.newPlot('edaDistPlot', plotData, layout, {responsive: true});
+        });
+    }
+
+    // 3. AUTOML LOGIC
+    function triggerAutoMLTraining() {
+        if (!currentDatasetId) {
+            alert("Please select and load a dataset detail view first.");
+            return;
+        }
+        
+        const target_column = document.getElementById('automlTargetSelector').value;
+        const btn = document.getElementById('btnRunAutoML');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Executing training...';
+        
+        fetch('/automl/api/train/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getCookie('access_token')
+            },
+            body: JSON.stringify({ dataset_id: currentDatasetId, target_column })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-play me-2"></i> Start AutoML Pipelines';
+            
+            if (data.task_id) {
+                alert(`AutoML pipeline started (Problem: ${data.detected_problem_type}). You will receive an in-app notification when model weights are compiled!`);
+                // Since eager mode is enabled in Django development setting,
+                // the results are available instantly!
+                loadModelsLeaderboard();
+            } else {
+                alert("AutoML run failed: " + (data.error || "Unknown error"));
+            }
+        });
+    }
+
+    function loadModelsLeaderboard() {
+        if (!currentProjectId) return;
+        fetch(`/automl/api/leaderboard/${currentProjectId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('automlLeaderboardBody');
+            tbody.innerHTML = '';
+            
+            document.getElementById('kpi-models-count').innerText = data.models ? data.models.length : 0;
+            
+            if (data.models && data.models.length > 0) {
+                document.getElementById('automlLeaderboardContainer').style.display = 'flex';
+                
+                // Load best model's feature importance chart
+                renderFeatureImportance(data.models[0].feature_importance);
+                
+                data.models.forEach((m, idx) => {
+                    const mainMetric = m.problem_type === 'classification' ? 'accuracy' : 'r2_score';
+                    const mainScore = m.metrics[mainMetric];
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <strong>${m.name}</strong><br>
+                            <small class="text-secondary">Target: ${m.target_column}</small>
+                        </td>
+                        <td><span class="badge bg-success">${mainScore} (${mainMetric})</span></td>
+                        <td style="font-size: 11px;">
+                            ${Object.entries(m.metrics).filter(([k]) => k !== 'confusion_matrix' && k !== 'roc_curve').map(([k, v]) => `${k}: ${v}`).join('<br>')}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-info btn-sm" onclick="openPredictionModal('${m._id}')">Predict</button>
+                                <a href="/automl/api/download/${m._id}/" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-download"></i></a>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No models trained yet</td></tr>';
+                document.getElementById('automlLeaderboardContainer').style.display = 'none';
+            }
+        });
+    }
+
+    function renderFeatureImportance(importanceObj) {
+        const sorted = Object.entries(importanceObj).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        const x = sorted.map(i => i[1]).reverse();
+        const y = sorted.map(i => i[0]).reverse();
+        
+        const data = [{
+            x: x,
+            y: y,
+            type: 'bar',
+            orientation: 'h',
+            marker: { color: '#8b5cf6' }
+        }];
+        
+        const layout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#94a3b8', size: 9 },
+            margin: { t: 10, b: 30, l: 80, r: 10 }
+        };
+        
+        Plotly.newPlot('automlImportancePlot', data, layout, {responsive: true});
+    }
+
+    let activePredictModelId = "";
+    function openPredictionModal(modelId) {
+        activePredictModelId = modelId;
+        
+        // Hide previous results
+        document.getElementById('predictResultsContainer').style.display = 'none';
+        document.getElementById('btnRunInference').disabled = false;
+        
+        const modal = new bootstrap.Modal(document.getElementById('automlPredictModal'));
+        modal.show();
+    }
+
+    function runModelInference() {
+        const dsId = document.getElementById('automlPredictDatasetSelector').value;
+        if (!dsId || !activePredictModelId) return;
+        
+        const btn = document.getElementById('btnRunInference');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Inversing metrics...';
+        
+        fetch('/automl/api/predict/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getCookie('access_token')
+            },
+            body: JSON.stringify({ model_id: activePredictModelId, dataset_id: dsId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = 'Run Inference';
+            
+            if (data.prediction_id) {
+                document.getElementById('predictResultsContainer').style.display = 'block';
+                document.getElementById('predictResultsText').innerHTML = `
+                    Predictions executed successfully. <br>
+                    <strong>Sample Preds (first 5):</strong> ${data.sample_predictions.slice(0, 5).join(', ')}
+                `;
+                
+                // Show local contributions preview
+                document.getElementById('explainPreviewText').innerText = JSON.stringify(data.explainability_preview, null, 2);
+            } else {
+                alert("Inference failed: " + (data.error || "Unknown error"));
+            }
+        });
+    }
+
+    // 4. FORECASTING LOGIC
+    function triggerForecasting() {
+        if (!currentDatasetId) return;
+        
+        const date_column = document.getElementById('forecastDateSelector').value;
+        const target_column = document.getElementById('forecastTargetSelector').value;
+        const periods = document.getElementById('forecastPeriods').value;
+        
+        const btn = document.getElementById('btnRunForecast');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Forecasting...';
+        
+        fetch('/forecasting/api/predict/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getCookie('access_token')
+            },
+            body: JSON.stringify({ dataset_id: currentDatasetId, date_column, target_column, periods })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw new Error(err.error || "Server returned " + res.status) })
+                .catch(() => { throw new Error("Server returned HTTP " + res.status) });
+            }
+            return res.json();
+        })
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-chart-line me-2"></i> Compute Forecast';
+            
+            if (data.task_id) {
+                alert("Forecasting calculation started. Gathering outputs...");
+                loadForecastResults();
+            } else {
+                alert("Forecast failed: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-chart-line me-2"></i> Compute Forecast';
+            alert("Forecasting failed: " + err.message);
+        });
+    }
+
+    function loadForecastResults() {
+        if (!currentProjectId) return;
+        fetch(`/forecasting/api/results/${currentProjectId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.forecasts && data.forecasts.length > 0) {
+                document.getElementById('forecastResultsContainer').style.display = 'flex';
+                const f = data.forecasts[0];
+                
+                // Render Plot
+                renderForecastPlot(f);
+                
+                // Render recommendations
+                const recList = document.getElementById('forecastRecList');
+                recList.innerHTML = '';
+                f.recommendations.forEach(r => {
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded bg-opacity-25 bg-primary border-start border-primary border-4 text-secondary small';
+                    card.innerText = r;
+                    recList.appendChild(card);
+                });
+            } else {
+                document.getElementById('forecastResultsContainer').style.display = 'none';
+            }
+        });
+    }
+
+    function renderForecastPlot(f) {
+        // Historical trace
+        const traceHist = {
+            x: f.historical_dates,
+            y: f.historical_values,
+            name: 'Historical',
+            type: 'scatter',
+            line: { color: '#3b82f6' }
+        };
+        
+        // Forecast trace
+        const traceForecast = {
+            x: f.forecast_dates,
+            y: f.forecast_values,
+            name: 'Forecasted Trend',
+            type: 'scatter',
+            line: { color: '#10b981', dash: 'dot' }
+        };
+        
+        // Upper bound
+        const traceUpper = {
+            x: f.forecast_dates,
+            y: f.upper_bounds,
+            name: '95% Confidence (Upper)',
+            type: 'scatter',
+            line: { width: 0 },
+            showlegend: false
+        };
+        
+        // Lower bound with fill
+        const traceLower = {
+            x: f.forecast_dates,
+            y: f.lower_bounds,
+            name: '95% Confidence Bounds',
+            type: 'scatter',
+            fill: 'tonexty',
+            fillcolor: 'rgba(16, 185, 129, 0.1)',
+            line: { width: 0 }
+        };
+        
+        const data = [traceHist, traceForecast, traceUpper, traceLower];
+        
+        const layout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#94a3b8', size: 9 },
+            margin: { t: 10, b: 30, l: 40, r: 10 },
+            legend: { orientation: 'h', y: -0.2 }
+        };
+        
+        Plotly.newPlot('forecastPlot', data, layout, {responsive: true});
+    }
+
+    // 5. ANOMALY DETECTION LOGIC
+    function triggerAnomalyDetection() {
+        if (!currentDatasetId) return;
+        
+        const selectedOptions = document.getElementById('anomalyFeaturesSelector').selectedOptions;
+        const features = Array.from(selectedOptions).map(o => o.value);
+        const contamination = document.getElementById('anomalyContam').value;
+        
+        if (features.length === 0) {
+            alert("Please select at least 1 feature column.");
+            return;
+        }
+        
+        const btn = document.getElementById('btnRunAnomaly');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Scanning...';
+        
+        fetch('/anomaly/api/detect/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getCookie('access_token')
+            },
+            body: JSON.stringify({ dataset_id: currentDatasetId, features, contamination })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-shield-halved me-2"></i> Scan Anomalies';
+            
+            if (data.task_id) {
+                alert("Unsupervised anomaly run started successfully.");
+                loadAnomalyResults();
+            } else {
+                alert("Scan failed: " + (data.error || "Unknown error"));
+            }
+        });
+    }
+
+    function loadAnomalyResults() {
+        if (!currentProjectId) return;
+        fetch(`/anomaly/api/results/${currentProjectId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('anomalyResultsContainer');
+            const tbody = document.getElementById('anomalyLeaderboardBody');
+            tbody.innerHTML = '';
+            
+            if (data.results && data.results.length > 0) {
+                container.style.display = 'block';
+                const r = data.results[0];
+                
+                document.getElementById('kpi-anomalies-count').innerText = r.summary.anomaly_count;
+                document.getElementById('anomalySummaryLabel').innerText = `Total flagged anomalies: ${r.summary.anomaly_count} (${r.summary.anomaly_percentage}% of dataset)`;
+                
+                r.anomalies.forEach(an => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>Row #${an.row_index}</strong></td>
+                        <td><span class="badge bg-danger">${an.risk_score}% Risk</span></td>
+                        <td style="font-size:11px;">
+                            ${Object.entries(an.details).map(([k,v]) => `${k}: ${v}`).join('<br>')}
+                        </td>
+                        <td style="font-size:11px; max-width: 400px;" class="text-truncate">
+                            ${JSON.stringify(an.full_row)}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                container.style.display = 'none';
+                document.getElementById('kpi-anomalies-count').innerText = '0';
+            }
+        });
+    }
+
+    // 6. NLP QUERY ENGINE
+    function clickNLPExample(el) {
+        document.getElementById('nlpInput').value = el.innerText;
+        submitNLPQuery();
+    }
+
+    function submitNLPQuery() {
+        if (!currentDatasetId) {
+            alert("Please select and load a dataset detail view first.");
+            return;
+        }
+        
+        const query = document.getElementById('nlpInput').value.trim();
+        if (!query) return;
+        
+        // Append user bubble
+        const history = document.getElementById('nlpChatHistory');
+        const userBubble = document.createElement('div');
+        userBubble.className = 'message-bubble user';
+        userBubble.innerHTML = `<span>${query}</span>`;
+        history.appendChild(userBubble);
+        history.scrollTop = history.scrollHeight;
+        
+        document.getElementById('nlpInput').value = '';
+        
+        const btn = document.getElementById('btnSendNLP');
+        btn.disabled = true;
+        
+        fetch('/nlp/api/query/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getCookie('access_token')
+            },
+            body: JSON.stringify({ dataset_id: currentDatasetId, query })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            
+            // Append AI bubble
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'message-bubble ai';
+            aiBubble.innerHTML = `<span>${data.text_response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</span>`;
+            history.appendChild(aiBubble);
+            history.scrollTop = history.scrollHeight;
+            
+            // Render chart if present
+            if (data.chart_response) {
+                document.getElementById('nlpChartPanel').style.display = 'block';
+                document.getElementById('nlpChartTitle').innerText = data.chart_response.label || "NLP Visualization";
+                
+                const plotData = [{
+                    x: data.chart_response.labels,
+                    y: data.chart_response.values,
+                    type: data.chart_response.type || 'bar',
+                    marker: { color: '#60a5fa' }
+                }];
+                
+                const layout = {
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: '#94a3b8', size: 9 },
+                    margin: { t: 10, b: 40, l: 40, r: 10 }
+                };
+                
+                Plotly.newPlot('nlpChartContainer', plotData, layout, {responsive: true});
+            } else {
+                document.getElementById('nlpChartPanel').style.display = 'none';
+            }
+        });
+    }
+
+    // 7. REPORTS ENGINE
+    function triggerReportCompilation() {
+        if (!currentProjectId || !currentDatasetId) {
+            alert("Ensure you select a workspace and active dataset before compiling briefs.");
+            return;
+        }
+        
+        const btn = document.getElementById('btnCompileReport');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Compiling PDF and Slides...';
+        
+        fetch('/reports/api/generate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getCookie('access_token')
+            },
+            body: JSON.stringify({ project_id: currentProjectId, dataset_id: currentDatasetId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-file-export me-2"></i> Compile Reports & Slides';
+            
+            if (data.pdf_report_id) {
+                alert("Executive briefs compiled successfully!");
+                loadReportsList();
+            } else {
+                alert("Report compilation failed: " + (data.error || "Unknown error"));
+            }
+        });
+    }
+
+    function loadReportsList() {
+        if (!currentProjectId) return;
+        fetch(`/reports/api/list/${currentProjectId}/`, {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('reportsTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.reports && data.reports.length > 0) {
+                data.reports.forEach(r => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${r.name}</strong></td>
+                        <td><span class="badge ${r.format === 'pdf' ? 'bg-primary' : 'bg-warning'}">${r.format.toUpperCase()}</span></td>
+                        <td class="small">${new Date(r.created_at).toLocaleString()}</td>
+                        <td>
+                            <a href="/reports/api/download/${r._id}/" class="btn btn-outline-success btn-sm">
+                                <i class="fa-solid fa-download me-1"></i> Download
+                            </a>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No reports compiled yet</td></tr>';
+            }
+        });
+    }
+
+    // Notifications List helper
+    function loadNotificationsList() {
+        fetch('/notifications/api/list/', {
+            headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const box = document.getElementById('dashboardNotificationsList');
+            box.innerHTML = '';
+            if (data.notifications && data.notifications.length > 0) {
+                data.notifications.forEach(n => {
+                    const div = document.createElement('div');
+                    div.className = `p-2 rounded bg-opacity-10 small border-start border-primary border-3 ${n.is_read ? 'opacity-75 bg-secondary' : 'bg-primary'}`;
+                    div.innerHTML = `
+                        <div class="fw-semibold text-white">${n.title}</div>
+                        <div class="text-secondary" style="font-size: 11px;">${n.message}</div>
+                    `;
+                    box.appendChild(div);
+                });
+            } else {
+                box.innerHTML = '<p class="text-muted small text-center my-5">No recent alerts</p>';
+            }
+        });
+    }
+</script>
+{% endblock %}

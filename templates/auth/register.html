@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEDIP - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .register-card {
+            width: 460px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel register-card text-white">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-user-plus text-gradient fs-1 mb-2"></i>
+            <h2 class="text-gradient fw-bold">Create Account</h2>
+            <p class="text-secondary small">Register to join AEDIP Analytics platform</p>
+        </div>
+        
+        <div class="alert alert-danger" id="regAlert" style="display: none;"></div>
+        <div class="alert alert-success" id="regSuccess" style="display: none;"></div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" id="regFirst" placeholder="Jane">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="regLast" placeholder="Doe">
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="regEmail" placeholder="jane.doe@company.com">
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="regPassword" placeholder="••••••••">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Platform Role</label>
+                <select class="form-select" id="regRole">
+                    <option value="viewer" selected>Viewer</option>
+                    <option value="analyst">Analyst</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+        </div>
+        
+        <button class="btn btn-glass-primary w-100 mb-3" onclick="submitRegister()">
+            <i class="fa-solid fa-user-check me-2"></i> Register Account
+        </button>
+        
+        <p class="text-center text-secondary small mb-0">
+            Already registered? <a href="/auth/login-page/" class="text-decoration-none text-gradient fw-semibold">Sign In here</a>
+        </p>
+    </div>
+
+    <script>
+        function submitRegister() {
+            const first_name = document.getElementById('regFirst').value.trim();
+            const last_name = document.getElementById('regLast').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            
+            const alertBox = document.getElementById('regAlert');
+            const successBox = document.getElementById('regSuccess');
+            
+            alertBox.style.display = "none";
+            successBox.style.display = "none";
+            
+            if (!first_name || !last_name || !email || !password) {
+                alertBox.innerText = "Please fill in all fields.";
+                alertBox.style.display = "block";
+                return;
+            }
+            
+            fetch('/auth/api/register/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ first_name, last_name, email, password, role })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Registration failed") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Return verification simulation link
+                const verifyUrl = `/auth/api/verify/${data.verification_token}/`;
+                successBox.innerHTML = `
+                    Registration successful! <br>
+                    <a href="${verifyUrl}" class="text-info fw-bold text-decoration-underline">Click here to simulate email verification</a>
+                `;
+                successBox.style.display = "block";
+                
+                // Clear fields
+                document.getElementById('regFirst').value = '';
+                document.getElementById('regLast').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+            })
+            .catch(err => {
+                alertBox.innerText = err.message;
+                alertBox.style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>
