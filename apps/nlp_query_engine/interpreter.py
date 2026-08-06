@@ -21,20 +21,29 @@ class NLQueryInterpreter:
         """Interpret a natural language question and return analytics + explanations."""
         query_lower = query.lower().strip()
         
-        # Identify common business columns
-        sales_col = self._find_column(['sales', 'revenue', 'turnover'], default=None)
+        # Identify common business columns with expanded synonyms
+        sales_col = self._find_column(['sales', 'revenue', 'turnover', 'purchase amount', 'amount', 'price'], default=None)
         profit_col = self._find_column(['profit', 'margin', 'gain'], default=None)
-        region_col = self._find_column(['region', 'state', 'country', 'city'], default=None)
-        product_col = self._find_column(['product', 'item', 'sku', 'category'], default=None)
+        region_col = self._find_column(['region', 'state', 'country', 'city', 'location', 'loc', 'geography'], default=None)
+        product_col = self._find_column(['product', 'item', 'sku', 'category', 'type', 'name'], default=None)
         date_col = self._find_column(['date', 'month', 'year', 'timestamp'], default=None)
         
-        # 1. QUESTION: Which region has maximum profit/sales?
-        if 'region' in query_lower and ('max' in query_lower or 'highest' in query_lower or 'best' in query_lower or 'most' in query_lower):
+        # 1. QUESTION: Which region/location has maximum profit/sales?
+        is_geo_query = any(k in query_lower for k in ['region', 'location', 'where', 'state', 'city'])
+        is_max_query = any(k in query_lower for k in ['max', 'highest', 'best', 'most', 'top', 'maximum'])
+        
+        if is_geo_query and is_max_query:
             target_col = profit_col or sales_col
             if not region_col:
-                return {"text": "I couldn't identify a region/geography column in your dataset.", "chart": None}
+                return {
+                    "text": "I couldn't automatically resolve a region, state, or geography column in this dataset. Please verify if your dataset has a location-related field.",
+                    "chart": None
+                }
             if not target_col:
-                return {"text": "I couldn't identify a profit or sales metric column in your dataset.", "chart": None}
+                return {
+                    "text": "I couldn't identify a numeric sales, revenue, or profit column in this dataset to aggregate performance metrics.",
+                    "chart": None
+                }
                 
             grouped = self.df.groupby(region_col)[target_col].sum().reset_index()
             grouped = grouped.sort_values(by=target_col, ascending=False)
@@ -44,7 +53,11 @@ class NLQueryInterpreter:
             total_val = grouped[target_col].sum()
             pct = (top_val / total_val * 100) if total_val > 0 else 0
             
-            text = f"The **'{top_region}'** region generated the highest performance with a total {target_col} of **${round(top_val, 2)}** (representing **{round(pct, 1)}%** of the total ${round(total_val, 2)} across all regions)."
+            text = (
+                f"Based on the aggregate analysis of geographical data, the highest-performing location is **'{top_region}'**, "
+                f"generating a total {target_col} of **${round(top_val, 2)}**. This accounts for **{round(pct, 1)}%** of the "
+                f"total **${round(total_val, 2)}** aggregated across all regions in your active dataset."
+            )
             
             chart = {
                 "type": "bar",
@@ -55,12 +68,13 @@ class NLQueryInterpreter:
             return {"text": text, "chart": chart}
             
         # 2. QUESTION: Why did sales decrease?
-        elif 'decrease' in query_lower or 'drop' in query_lower or 'decline' in query_lower or 'why did' in query_lower:
+        is_decline_query = any(k in query_lower for k in ['decrease', 'drop', 'decline', 'why did', 'down', 'loss', 'fall'])
+        if is_decline_query:
             target_col = sales_col or profit_col
             if not target_col:
-                return {"text": "I couldn't identify a sales or profit column to analyze trends.", "chart": None}
+                return {"text": "I couldn't find a numeric metric column (like sales or revenue) to calculate trend lines.", "chart": None}
             if not date_col:
-                return {"text": "I couldn't identify a date or time column to calculate monthly drop.", "chart": None}
+                return {"text": "A date-time field is required to determine historical month-over-month declines.", "chart": None}
                 
             # Aggregate monthly
             temp_df = self.df.copy()
@@ -68,13 +82,13 @@ class NLQueryInterpreter:
             monthly = temp_df.set_index(date_col).resample('ME')[target_col].sum().reset_index()
             
             if len(monthly) < 2:
-                return {"text": "The dataset contains insufficient monthly historical intervals to calculate drops.", "chart": None}
+                return {"text": "The active dataset contains less than two months of historical intervals, which is insufficient to compute growth/decline rate drops.", "chart": None}
                 
             monthly['pct_change'] = monthly[target_col].pct_change() * 100
             drops = monthly[monthly['pct_change'] < 0]
             
             if drops.empty:
-                return {"text": f"Analyzing the historical trend, {target_col} did not show any monthly drop. The trend is consistently positive.", "chart": None}
+                return {"text": f"Analyzing the historical trend lines, the {target_col} did not show any month-over-month decline. The growth trend remains consistently positive.", "chart": None}
                 
             biggest_drop_idx = drops['pct_change'].idxmin()
             drop_row = monthly.iloc[biggest_drop_idx]
@@ -86,12 +100,15 @@ class NLQueryInterpreter:
             abs_drop = prev_val - drop_val
             pct_drop = abs(drop_row['pct_change'])
             
-            text = f"The largest decline in {target_col} occurred in **{drop_date_str}**, where values dropped from **${round(prev_val, 2)}** to **${round(drop_val, 2)}** (a drop of **${round(abs_drop, 2)}** or **{round(pct_drop, 1)}%**).\n\n"
+            text = (
+                f"The most significant decline in {target_col} occurred in **{drop_date_str}**, where aggregate values "
+                f"dropped from **${round(prev_val, 2)}** to **${round(drop_val, 2)}** (representing a decline of "
+                f"**${round(abs_drop, 2)}** or **{round(pct_drop, 1)}%** compared to the previous period).\n\n"
+            )
             
             # Segment drill-down (if product/category or region is available)
             drill_col = product_col or region_col
             if drill_col:
-                # Compare drop month with prev month in segments
                 t_df = temp_df
                 d_month = drop_row[date_col].month
                 d_year = drop_row[date_col].year
@@ -105,7 +122,7 @@ class NLQueryInterpreter:
                 if not diff.empty and diff.max() > 0:
                     worst_seg = diff.idxmax()
                     worst_drop = diff.max()
-                    text += f"Drill-down analysis reveals that this decline was heavily driven by the **'{worst_seg}'** {drill_col}, which fell by **${round(worst_drop, 2)}** compared to the prior period."
+                    text += f"Further drill-down reveals this drop was primarily driven by the **'{worst_seg}'** segment (under column '{drill_col}'), which saw its revenue contract by **${round(worst_drop, 2)}**."
                     
             chart = {
                 "type": "line",
@@ -116,12 +133,13 @@ class NLQueryInterpreter:
             return {"text": text, "chart": chart}
             
         # 3. QUESTION: Predict / forecast future
-        elif 'predict' in query_lower or 'forecast' in query_lower or 'next month' in query_lower:
+        is_forecast_query = any(k in query_lower for k in ['predict', 'forecast', 'next month', 'future', 'projection'])
+        if is_forecast_query:
             target_col = sales_col or profit_col
             if not target_col:
-                return {"text": "I couldn't identify a metric column (sales/profit) to predict.", "chart": None}
+                return {"text": "I couldn't identify a metric column (like sales or profit) to project into future periods.", "chart": None}
             if not date_col:
-                return {"text": "I need a date column to build a predictive forecast.", "chart": None}
+                return {"text": "A date-time column is required to build a chronological trend projection model.", "chart": None}
                 
             # Aggregate monthly
             temp_df = self.df.copy()
@@ -130,7 +148,7 @@ class NLQueryInterpreter:
             monthly[date_col] = monthly[date_col].dt.to_timestamp()
             
             if len(monthly) < 3:
-                return {"text": "Insufficient historical points to train a prediction model. Need at least 3 months.", "chart": None}
+                return {"text": "Insufficient data intervals (need at least 3 months of history) to train a trend model.", "chart": None}
                 
             # Use simple linear trend for quick local predictions
             X = np.arange(len(monthly)).reshape(-1, 1)
@@ -151,7 +169,11 @@ class NLQueryInterpreter:
             next_date = monthly[date_col].iloc[-1] + pd.DateOffset(months=1)
             next_date_str = next_date.strftime('%B %Y')
             
-            text = f"Based on a linear regression trend fit to historical data, the predicted {target_col} for **{next_date_str}** is **${round(pred_next, 2)}** (with a 95% confidence interval ranging from **${round(lower, 2)}** to **${round(upper, 2)}**)."
+            text = (
+                f"Using a linear regression model fit to your monthly historical records, the projected {target_col} for "
+                f"**{next_date_str}** is **${round(pred_next, 2)}**. The 95% confidence interval spans from a lower limit of "
+                f"**${round(lower, 2)}** to a maximum of **${round(upper, 2)}**."
+            )
             
             # Chart includes historical + next month prediction
             labels = [d.strftime('%b %Y') for d in monthly[date_col].tolist()] + [next_date_str]
@@ -166,14 +188,15 @@ class NLQueryInterpreter:
             return {"text": text, "chart": chart}
             
         # 4. QUESTION: Which product performs poorly?
-        elif 'poor' in query_lower or 'worst' in query_lower or 'lowest' in query_lower or 'least' in query_lower:
+        is_poor_query = any(k in query_lower for k in ['poor', 'worst', 'lowest', 'least', 'bottom', 'low'])
+        if is_poor_query:
             target_col = sales_col or profit_col
             drill_col = product_col or region_col
             
             if not drill_col:
-                return {"text": "I couldn't identify any product, item, or category columns in this dataset.", "chart": None}
+                return {"text": "I couldn't locate a product name, category, or region column to evaluate bottom performances.", "chart": None}
             if not target_col:
-                return {"text": "I couldn't identify a sales or profit metric to evaluate performance.", "chart": None}
+                return {"text": "I couldn't identify a numeric sales or profit column to rank product outputs.", "chart": None}
                 
             grouped = self.df.groupby(drill_col)[target_col].sum().reset_index()
             grouped = grouped.sort_values(by=target_col, ascending=True)
@@ -181,7 +204,10 @@ class NLQueryInterpreter:
             worst_name = grouped.iloc[0][drill_col]
             worst_val = grouped.iloc[0][target_col]
             
-            text = f"The lowest-performing {drill_col} is **'{worst_name}'**, generating a total {target_col} of only **${round(worst_val, 2)}**."
+            text = (
+                f"Ranking the data columns in ascending order, the lowest-performing segment under '{drill_col}' "
+                f"is **'{worst_name}'**, which generated a total {target_col} of only **${round(worst_val, 2)}**."
+            )
             
             chart = {
                 "type": "bar",
@@ -194,36 +220,33 @@ class NLQueryInterpreter:
         # Default: Generate Business Insights summary
         else:
             insights = []
-            # Calculate total metrics
             row_cnt = len(self.df)
-            insights.append(f"• Dataset consists of **{row_cnt}** business transaction records and **{len(self.df.columns)}** columns.")
+            insights.append(f"• Your dataset comprises **{row_cnt}** operational records spanning **{len(self.df.columns)}** columns.")
             
             if sales_col:
                 tot_sales = self.df[sales_col].sum()
                 avg_sales = self.df[sales_col].mean()
-                insights.append(f"• Total cumulative {sales_col} generated: **${round(tot_sales, 2)}** (average per transaction: **${round(avg_sales, 2)}**).")
+                insights.append(f"• Total aggregated {sales_col}: **${round(tot_sales, 2)}** (average transactions: **${round(avg_sales, 2)}**).")
                 
             if profit_col:
                 tot_profit = self.df[profit_col].sum()
-                insights.append(f"• Total cumulative net profit: **${round(tot_profit, 2)}**.")
+                insights.append(f"• Total net profit: **${round(tot_profit, 2)}**.")
                 
             if product_col and sales_col:
                 top_p = self.df.groupby(product_col)[sales_col].sum().idxmax()
-                insights.append(f"• Top contributing product segment: **'{top_p}'**.")
+                insights.append(f"• Top contributing segment: **'{top_p}'** (ranking highest in aggregate revenue).")
                 
             if date_col and sales_col:
-                # growth
                 temp_df = self.df.copy()
                 temp_df[date_col] = pd.to_datetime(temp_df[date_col])
                 monthly = temp_df.set_index(date_col).resample('ME')[sales_col].sum()
                 if len(monthly) >= 2:
                     change = (monthly.iloc[-1] - monthly.iloc[-2]) / monthly.iloc[-2] * 100
                     dir_str = "increase" if change > 0 else "decline"
-                    insights.append(f"• Month-over-month sales growth: **{round(change, 1)}% {dir_str}** in the final period.")
+                    insights.append(f"• Month-over-month growth rate: **{round(change, 1)}% {dir_str}** in the final period.")
                     
-            text = "### Automated Business Insights Summary:\n\n" + "\n".join(insights)
+            text = "### Business Intelligence Summary Insights:\n\n" + "\n".join(insights)
             
-            # Simple chart
             chart = None
             if product_col and sales_col:
                 grouped = self.df.groupby(product_col)[sales_col].sum().reset_index().sort_values(by=sales_col, ascending=False).head(5)
