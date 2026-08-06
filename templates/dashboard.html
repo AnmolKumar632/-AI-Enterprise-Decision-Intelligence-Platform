@@ -312,6 +312,12 @@
         </div>
     </div>
 
+    <!-- Forecast Error Notification -->
+    <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger" id="forecastErrorContainer" style="display: none; margin-top: 15px; border-radius: 8px;">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        <span id="forecastErrorText"></span>
+    </div>
+
     <!-- Forecast Results Charts -->
     <div class="row g-4" id="forecastResultsContainer" style="display: none;">
         <div class="col-md-8">
@@ -1120,24 +1126,38 @@
         })
         .then(res => res.json())
         .then(data => {
+            const errContainer = document.getElementById('forecastErrorContainer');
+            const resContainer = document.getElementById('forecastResultsContainer');
+            
             if (data.forecasts && data.forecasts.length > 0) {
-                document.getElementById('forecastResultsContainer').style.display = 'flex';
                 const f = data.forecasts[0];
                 
-                // Render Plot
-                renderForecastPlot(f);
-                
-                // Render recommendations
-                const recList = document.getElementById('forecastRecList');
-                recList.innerHTML = '';
-                f.recommendations.forEach(r => {
-                    const card = document.createElement('div');
-                    card.className = 'p-3 rounded bg-opacity-25 bg-primary border-start border-primary border-4 text-secondary small';
-                    card.innerText = r;
-                    recList.appendChild(card);
-                });
+                if (f.status === 'failed') {
+                    resContainer.style.display = 'none';
+                    errContainer.style.display = 'block';
+                    document.getElementById('forecastErrorText').innerText = "Forecasting failed: " + (f.error_message || "Unknown error in time-series fit.");
+                } else {
+                    errContainer.style.display = 'none';
+                    resContainer.style.display = 'flex';
+                    
+                    // Render Plot
+                    renderForecastPlot(f);
+                    
+                    // Render recommendations
+                    const recList = document.getElementById('forecastRecList');
+                    recList.innerHTML = '';
+                    if (f.recommendations) {
+                        f.recommendations.forEach(r => {
+                            const card = document.createElement('div');
+                            card.className = 'p-3 rounded bg-opacity-25 bg-primary border-start border-primary border-4 text-secondary small';
+                            card.innerText = r;
+                            recList.appendChild(card);
+                        });
+                    }
+                }
             } else {
-                document.getElementById('forecastResultsContainer').style.display = 'none';
+                resContainer.style.display = 'none';
+                errContainer.style.display = 'none';
             }
         });
     }

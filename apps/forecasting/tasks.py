@@ -146,6 +146,7 @@ def run_forecasting_task(project_id, dataset_id, date_col, target_col, periods, 
             "project_id": ObjectId(project_id),
             "dataset_id": ObjectId(dataset_id),
             "type": "forecasting",
+            "status": "success",
             "target_column": target_col,
             "historical_dates": historical_dates,
             "historical_values": historical_values,
@@ -171,3 +172,15 @@ def run_forecasting_task(project_id, dataset_id, date_col, target_col, periods, 
     except Exception as e:
         logger.error(f"Forecasting task failed: {str(e)}")
         notify_user(user_id, "Forecasting Job Failed", f"Time-series forecast failed: {str(e)}")
+        try:
+            forecast_doc = {
+                "project_id": ObjectId(project_id),
+                "dataset_id": ObjectId(dataset_id),
+                "type": "forecasting",
+                "status": "failed",
+                "error_message": str(e),
+                "created_at": datetime.datetime.utcnow()
+            }
+            db.predictions.insert_one(forecast_doc)
+        except Exception as db_err:
+            logger.error(f"Failed to save forecast error to database: {str(db_err)}")
