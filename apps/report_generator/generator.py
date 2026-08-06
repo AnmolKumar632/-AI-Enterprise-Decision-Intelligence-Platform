@@ -229,7 +229,7 @@ class ReportGenerator:
         
         tf = slide.shapes.placeholders[1].text_frame
         tf.text = "Corporate action items derived from analytical findings:"
-        tf.text_frame.paragraphs[0].font.bold = True
+        tf.paragraphs[0].font.bold = True
         
         for rec in recommendations:
             p_r = tf.add_paragraph()
