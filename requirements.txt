@@ -13,7 +13,4 @@ openpyxl
 reportlab
 python-pptx
 gunicorn
-matplotlib
-seaborn
-plotly
 statsmodels
