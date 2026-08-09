@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Studio Report - {{ project_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #0B1120;
+            --bg-card: #111A2E;
+            --border-subtle: rgba(148, 163, 184, 0.16);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --accent-cyan: #22d3ee;
+            --accent-blue: #3b82f6;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image:
+                radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.08) 0%, transparent 42%),
+                radial-gradient(circle at 88% 90%, rgba(59, 130, 246, 0.10) 0%, transparent 40%);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 32px 0;
+        }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+        .report-header {
+            background: linear-gradient(180deg, rgba(17, 26, 46, 0.9), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 20px;
+            padding: 36px 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 20px 48px -16px rgba(0, 0, 0, 0.6), 0 0 40px rgba(34, 211, 238, 0.08);
+        }
+
+        .report-eyebrow {
+            color: var(--accent-cyan);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .report-title {
+            font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 8px 0 12px;
+        }
+
+        .report-title span {
+            background: linear-gradient(120deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .report-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .meta-chip {
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.22);
+            color: var(--text-secondary);
+            border-radius: 999px;
+            padding: 7px 16px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .meta-chip b { color: var(--accent-cyan); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+            gap: 24px;
+        }
+
+        .widget-card {
+            background: linear-gradient(180deg, rgba(17, 26, 46, 0.7), rgba(15, 23, 42, 0.9));
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 22px;
+            transition: border-color 0.25s ease;
+        }
+
+        .widget-card:hover { border-color: rgba(56, 189, 248, 0.4); }
+
+        .widget-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-title::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+        }
+
+        .chart { width: 100%; height: 360px; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            border: 1px dashed rgba(148, 163, 184, 0.3);
+            border-radius: 18px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i { font-size: 2.4rem; margin-bottom: 12px; display: block; opacity: 0.5; }
+
+        .report-footer {
+            margin-top: 32px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 20px;
+        }
+
+        @media (max-width: 620px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="report-header">
+            <div class="report-eyebrow">AEDIP Platform · Data Studio Report</div>
+            <h1 class="report-title">Executive Data Studio — <span>{{ project_name }}</span></h1>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">Interactive visualization summary embedding pinned dashboard widgets from the workspace Data Studio.</p>
+            <div class="report-meta">
+                <span class="meta-chip">Generated <b>{{ generated_at }}</b></span>
+                <span class="meta-chip">Widgets <b>{{ widget_count }}</b></span>
+                <span class="meta-chip">Datasets <b>{{ dataset_count }}</b></span>
+                {% if datasets %}
+                <span class="meta-chip">Sources <b>{% for d in datasets %}{{ d.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</b></span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if widget_count == 0 %}
+        <div class="empty-state">
+            <i>📊</i>
+            <p><b>No pinned widgets found.</b></p>
+            <p style="font-size: 0.9rem;">Open the Interactive Visualizer in the Data Studio, render a chart, and click <b>Pin</b> to attach widgets before compiling this report.</p>
+        </div>
+        {% else %}
+        <div class="grid" id="widgetGrid"></div>
+        {% endif %}
+
+        <div class="report-footer">© AEDIP — AI Enterprise Decision Intelligence Platform · Auto-generated executive data studio report</div>
+    </div>
+
+    <script>
+        const WIDGETS = {{ widgets_json|safe }};
+
+        function buildPlotData(data) {
+            let plotData = [];
+            if (data.chart_type === 'heatmap') {
+                plotData = [{
+                    z: data.z_values,
+                    x: data.x_labels,
+                    y: data.y_labels,
+                    type: 'heatmap',
+                    colorscale: 'Viridis'
+                }];
+            } else if (data.chart_type === 'scatter') {
+                plotData = [{
+                    x: data.x_values,
+                    y: data.y_values,
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: { color: '#38bdf8', size: 8 }
+                }];
+            } else if (data.chart_type === 'box') {
+                plotData = Object.keys(data.box_groups || {}).map(groupName => ({
+                    y: data.box_groups[groupName],
+                    name: groupName,
+                    type: 'box'
+                }));
+            } else if (data.multi_series) {
+                plotData = data.multi_series.map(s => ({
+                    x: data.labels,
+                    y: s.data,
+                    name: s.name,
+                    type: data.chart_type === 'area' ? 'scatter' : data.chart_type,
+                    fill: data.chart_type === 'area' ? 'tozeroy' : undefined
+                }));
+            } else if (data.chart_type === 'pie') {
+                plotData = [{
+                    labels: data.labels,
+                    values: data.values,
+                    type: 'pie',
+                    hole: .4
+                }];
+            } else {
+                plotData = [{
+                    x: data.labels,
+                    y: data.values,
+                    type: data.chart_type === 'area' ? 'scatter' : data.chart_type,
+                    fill: data.chart_type === 'area' ? 'tozeroy' : undefined,
+                    marker: { color: '#6366f1' }
+                }];
+            }
+            return plotData;
+        }
+
+        function renderWidget(containerId, data) {
+            const layout = {
+                autosize: true,
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#94a3b8', family: 'Inter, sans-serif' },
+                margin: { t: 30, b: 50, l: 50, r: 20 },
+                xaxis: { gridcolor: 'rgba(255,255,255,0.05)', color: '#94a3b8' },
+                yaxis: { gridcolor: 'rgba(255,255,255,0.05)', color: '#94a3b8' }
+            };
+            Plotly.newPlot(containerId, buildPlotData(data), layout, { responsive: true });
+        }
+
+        const grid = document.getElementById('widgetGrid');
+        WIDGETS.forEach((widget, idx) => {
+            const card = document.createElement('div');
+            card.className = 'widget-card';
+            card.innerHTML = `
+                <div class="widget-title">${widget.title}</div>
+                <div class="chart" id="reportChart_${idx}"></div>
+            `;
+            grid.appendChild(card);
+            renderWidget(`reportChart_${idx}`, widget.data);
+        });
+    </script>
+</body>
+</html>

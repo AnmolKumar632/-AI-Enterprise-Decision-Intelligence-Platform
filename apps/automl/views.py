@@ -33,6 +33,7 @@ def api_trigger_training(request):
         data = json.loads(request.body)
         dataset_id = data.get('dataset_id')
         target_col = data.get('target_column')
+        selected_models = data.get('selected_models', [])
         
         if not dataset_id or not target_col:
             return JsonResponse({"error": "dataset_id and target_column are required."}, status=400)
@@ -43,6 +44,16 @@ def api_trigger_training(request):
             
         project_id = str(dataset.get('project_id'))
         
+        # Match target column case-insensitively and whitespace-insensitively
+        columns_list = dataset.get('metadata', {}).get('columns', [])
+        matched_col = None
+        for col in columns_list:
+            if col.strip().lower() == target_col.strip().lower():
+                matched_col = col
+                break
+        if matched_col:
+            target_col = matched_col
+            
         # 1. Load dataset preview or schema to determine problem type
         schema = dataset.get('metadata', {}).get('schema', {}).get(target_col)
         if not schema:
@@ -57,9 +68,33 @@ def api_trigger_training(request):
         else:
             problem_type = 'classification'
             
-        # Trigger Celery Task
+        # Create training job document in MongoDB
+        job_id = str(ObjectId())
+        db.automl_jobs.insert_one({
+            "_id": ObjectId(job_id),
+            "project_id": ObjectId(project_id),
+            "dataset_id": ObjectId(dataset_id),
+            "target_column": target_col,
+            "problem_type": problem_type,
+            "selected_models": selected_models,
+            "status": "training",
+            "progress_pct": 5,
+            "current_step": "Initializing AutoML training job...",
+            "active_model": "",
+            "created_at": datetime.datetime.utcnow(),
+            "updated_at": datetime.datetime.utcnow()
+        })
+
+        # Launch background thread execution (ensures reliable live progress updates in any env)
         user_id = request.user_data['id']
-        task = train_automl_models_task.delay(project_id, dataset_id, target_col, problem_type, user_id)
+        import threading
+        t = threading.Thread(
+            target=train_automl_models_task,
+            args=(project_id, dataset_id, target_col, problem_type, user_id),
+            kwargs={"job_id": job_id, "selected_models": selected_models},
+            daemon=True
+        )
+        t.start()
         
         # Log Audit activity
         log_user_activity(
@@ -71,7 +106,8 @@ def api_trigger_training(request):
         
         return JsonResponse({
             "message": "AutoML training triggered successfully.",
-            "task_id": task.id,
+            "task_id": job_id,
+            "job_id": job_id,
             "detected_problem_type": problem_type
         }, status=202)
         
@@ -256,3 +292,92 @@ def api_download_model(request, model_id):
         return response
     else:
         return JsonResponse({"error": "Model file missing from disk."}, status=404)
+
+@csrf_exempt
+@login_required_api
+def api_delete_model(request, model_id):
+    """Delete a trained AutoML model record and its serialized file."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Method not allowed. Use POST."}, status=405)
+
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+
+    model = db.models.find_one({"_id": ObjectId(model_id)})
+    if not model:
+        return JsonResponse({"error": "Model not found."}, status=404)
+
+    file_path = model.get('file_path')
+    db.models.delete_one({"_id": ObjectId(model_id)})
+
+    if file_path and os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            logger.error(f"Failed to remove model file {file_path}: {str(e)}")
+
+    log_user_activity(
+        request.user_data['id'],
+        "MODEL_DELETE",
+        f"Deleted AutoML model {model.get('name', model_id)}.",
+        request
+    )
+
+    return JsonResponse({"message": "Model deleted successfully."}, status=200)
+
+@csrf_exempt
+@login_required_api
+def api_toggle_auto_retrain(request):
+    """Toggle auto-retraining setting for a project workspace."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Method not allowed. Use POST."}, status=405)
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+        
+    try:
+        data = json.loads(request.body)
+        project_id = data.get('project_id')
+        enabled = data.get('enabled', True)
+        
+        if not project_id:
+            return JsonResponse({"error": "project_id is required."}, status=400)
+            
+        db.projects.update_one(
+            {"_id": ObjectId(project_id)},
+            {"$set": {"auto_retrain_enabled": bool(enabled), "updated_at": datetime.datetime.utcnow()}}
+        )
+        return JsonResponse({"message": "Auto-retrain setting updated.", "auto_retrain_enabled": bool(enabled)}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+@login_required_api
+def api_get_auto_retrain_status(request, project_id):
+    """Fetch current auto-retraining setting status for a project workspace."""
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+    try:
+        proj = db.projects.find_one({"_id": ObjectId(project_id)}) or {}
+        return JsonResponse({"auto_retrain_enabled": proj.get("auto_retrain_enabled", True)}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+@login_required_api
+def api_get_job_status(request, job_id):
+    """Fetch live status, percentage completion, and active step for an AutoML training job."""
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+    try:
+        job = db.automl_jobs.find_one({"_id": ObjectId(job_id)})
+        if not job:
+            return JsonResponse({"error": "Job not found."}, status=404)
+            
+        job['_id'] = str(job['_id'])
+        job['project_id'] = str(job['project_id'])
+        job['dataset_id'] = str(job['dataset_id'])
+        return JsonResponse({"job": job}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+

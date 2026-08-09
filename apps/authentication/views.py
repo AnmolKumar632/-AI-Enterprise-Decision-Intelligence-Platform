@@ -36,10 +36,25 @@ def log_user_activity(user_id, action, details, request=None):
     db.audit_logs.insert_one(log_doc)
     logger.info(f"Audit Log: User {user_id} - {action} - {details}")
 
-# UI Views
+def landing_page(request):
+    """Render the public landing page for the AI Enterprise Decision Intelligence platform."""
+    return render(request, 'landing.html')
+
+def solutions_page(request):
+    """Render the public Solutions index with enterprise AI solution cards."""
+    return render(request, 'solutions.html')
+
+def call_center_page(request):
+    """Render the dedicated AI Base Call Center product page."""
+    return render(request, 'ai_base_call_center.html')
+
+def architecture_page(request):
+    """Render the platform architecture page."""
+    return render(request, 'architecture.html')
+
 def login_page(request):
-    """Render Login Template."""
-    return render(request, 'auth/login.html')
+    """Render Landing/Login Template."""
+    return render(request, 'landing.html')
 
 def register_page(request):
     """Render Register Template."""
@@ -75,14 +90,43 @@ def api_register(request):
         if db.users.find_one({"email": email}):
             return JsonResponse({"error": "Email is already registered."}, status=400)
             
+        # Get or create default Organization
+        org = db.organizations.find_one({"name": "Default Organization"})
+        if not org:
+            org_doc = {"name": "Default Organization", "created_at": datetime.datetime.utcnow()}
+            org_result = db.organizations.insert_one(org_doc)
+            org_id = org_result.inserted_id
+        else:
+            org_id = org['_id']
+
+        # Create temporary User ID to associate with workspace
+        temp_user_id = ObjectId()
+
+        # Get or create default Workspace
+        workspace = db.workspaces.find_one({"organization_id": org_id, "name": "Staging Sandbox"})
+        if not workspace:
+            ws_doc = {
+                "organization_id": org_id,
+                "name": "Staging Sandbox",
+                "owner_id": temp_user_id,
+                "created_at": datetime.datetime.utcnow()
+            }
+            ws_result = db.workspaces.insert_one(ws_doc)
+            workspace_id = ws_result.inserted_id
+        else:
+            workspace_id = workspace['_id']
+
         # Create User document
         verification_token = str(uuid.uuid4())
         user_doc = {
+            "_id": temp_user_id,
             "email": email,
             "password_hash": make_password(password),
             "first_name": first_name,
             "last_name": last_name,
             "role": role,
+            "organization_id": org_id,
+            "workspace_id": workspace_id,
             "is_verified": False,
             "verification_token": verification_token,
             "created_at": datetime.datetime.utcnow(),
@@ -93,7 +137,7 @@ def api_register(request):
         user_id = str(result.inserted_id)
         
         # Log Audit activity
-        log_user_activity(user_id, "REGISTER", f"User registered as {role}.", request)
+        log_user_activity(user_id, "REGISTER", f"User registered as {role} in organization {org_id}.", request)
         
         # In a real environment, send verification email.
         # We will simulate this by returning the token in response for testing.
@@ -139,6 +183,8 @@ def api_login(request):
             "user_id": str(user['_id']),
             "email": user['email'],
             "role": user.get('role', 'viewer'),
+            "organization_id": str(user.get('organization_id', '')),
+            "workspace_id": str(user.get('workspace_id', '')),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
@@ -157,7 +203,9 @@ def api_login(request):
                 "email": user['email'],
                 "first_name": user.get('first_name'),
                 "last_name": user.get('last_name'),
-                "role": user.get('role', 'viewer')
+                "role": user.get('role', 'viewer'),
+                "organization_id": str(user.get('organization_id', '')),
+                "workspace_id": str(user.get('workspace_id', ''))
             }
         }, status=200)
         

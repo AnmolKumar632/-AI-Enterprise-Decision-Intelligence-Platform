@@ -9,13 +9,19 @@ from bson import ObjectId
 db = get_db()
 
 def get_token_from_request(request):
-    """Extract token from Authorization header or session."""
+    """Extract token from Authorization header, session, or cookies."""
     auth_header = request.headers.get('Authorization', '')
     if auth_header.startswith('Bearer '):
         return auth_header.split(' ')[1]
     
     # Fallback to session
-    return request.session.get('access_token')
+    token = request.session.get('access_token')
+    if token:
+        return token
+        
+    # Fallback to cookies
+    return request.COOKIES.get('access_token')
+
 
 def get_current_user(request):
     """Retrieve current user from decoded token data."""
@@ -36,6 +42,10 @@ def get_current_user(request):
             user.pop('password_hash', None)
             user['_id'] = str(user['_id'])
             user['id'] = user['_id']
+            if 'organization_id' in user:
+                user['organization_id'] = str(user['organization_id'])
+            if 'workspace_id' in user:
+                user['workspace_id'] = str(user['workspace_id'])
             return user
     except Exception:
         pass

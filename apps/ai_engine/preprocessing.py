@@ -48,33 +48,90 @@ class DataPreprocessor:
 
     def calculate_quality_score(self) -> float:
         """Compute an index score from 0 to 100 representing data hygiene."""
+        quality_data = self.calculate_detailed_quality()
+        return quality_data["score"]
+
+    def calculate_detailed_quality(self) -> dict:
+        """Compute detailed data quality dimensions (Completeness, Validity, Consistency, Uniqueness, Outliers)."""
         if self.df.empty:
-            return 0.0
-            
+            return {
+                "score": 0.0,
+                "completeness": 0.0,
+                "validity": 0.0,
+                "consistency": 0.0,
+                "uniqueness": 0.0,
+                "outliers_pct": 0.0,
+                "issues": ["Dataset is empty."]
+            }
+
         total_elements = self.df.size
-        total_missing = self.df.isnull().sum().sum()
-        missing_penalty = (total_missing / total_elements) * 50 if total_elements > 0 else 0
-        
+        total_missing = int(self.df.isnull().sum().sum())
+        completeness = round((1 - (total_missing / total_elements)) * 100, 2) if total_elements > 0 else 100.0
+
+        # Uniqueness
         total_rows = len(self.df)
-        duplicate_rows = self.df.duplicated().sum()
-        duplicate_penalty = (duplicate_rows / total_rows) * 30 if total_rows > 0 else 0
-        
-        # Outlier penalty
-        outlier_penalty = 0
+        duplicate_rows = int(self.df.duplicated().sum())
+        uniqueness = round((1 - (duplicate_rows / total_rows)) * 100, 2) if total_rows > 0 else 100.0
+
+        # Consistency and Validity checks
+        schema = self.detect_schema()
+        validity_issues = 0
+        consistency_issues = 0
+        issues_list = []
+
+        for col, info in schema.items():
+            # Missingness checks
+            if info['missing_pct'] > 5.0:
+                issues_list.append(f"Column '{col}' has {info['missing_pct']}% missing values.")
+
+            # Validity & Consistency checks
+            if info['semantic_type'] == 'numerical':
+                # Check for extreme negatives in columns that should be positive (e.g. Sales, Price)
+                if any(k in col.lower() for k in ['sales', 'price', 'revenue', 'profit', 'quantity', 'amount']):
+                    neg_count = int((self.df[col] < 0).sum())
+                    if neg_count > 0:
+                        validity_issues += neg_count
+                        issues_list.append(f"Column '{col}' contains {neg_count} negative values, which may be invalid for monetary/quantity fields.")
+            elif info['semantic_type'] == 'datetime':
+                # Check for parsing anomalies
+                parsed = pd.to_datetime(self.df[col], errors='coerce')
+                nat_count = int(parsed.isna().sum() - info['missing_count'])
+                if nat_count > 0:
+                    consistency_issues += nat_count
+                    issues_list.append(f"Column '{col}' has {nat_count} rows with inconsistent date formats.")
+
+        validity = round((1 - (validity_issues / total_elements)) * 100, 2) if total_elements > 0 else 100.0
+        consistency = round((1 - (consistency_issues / total_elements)) * 100, 2) if total_elements > 0 else 100.0
+
+        # Outlier check
+        outliers_count = 0
         num_cols = self.df.select_dtypes(include=[np.number]).columns
         if len(num_cols) > 0 and total_rows > 5:
             try:
-                # Impute missing values temporarily to run outlier forest
                 temp_df = self.df[num_cols].fillna(self.df[num_cols].median())
                 iso = IsolationForest(n_estimators=50, random_state=42)
                 preds = iso.fit_predict(temp_df)
-                outliers = np.sum(preds == -1)
-                outlier_penalty = (outliers / total_rows) * 20
+                outliers_count = int(np.sum(preds == -1))
             except Exception:
                 pass
-                
-        score = 100.0 - missing_penalty - duplicate_penalty - outlier_penalty
-        return max(0.0, min(100.0, round(score, 2)))
+
+        outliers_pct = round((outliers_count / total_rows) * 100, 2) if total_rows > 0 else 0.0
+        if outliers_pct > 5.0:
+            issues_list.append(f"High outlier contamination ({outliers_pct}%) detected across numerical columns.")
+
+        # Compute combined score
+        score = (completeness * 0.3) + (uniqueness * 0.25) + (validity * 0.2) + (consistency * 0.15) + ((100.0 - outliers_pct) * 0.1)
+        score = round(max(0.0, min(100.0, score)), 2)
+
+        return {
+            "score": score,
+            "completeness": completeness,
+            "validity": validity,
+            "consistency": consistency,
+            "uniqueness": uniqueness,
+            "outliers_pct": outliers_pct,
+            "issues": issues_list[:10]  # Limit to top 10 issues
+        }
 
     def impute_missing(self, strategy='auto'):
         """Handle missing values using central tendency methods."""

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture — AI Enterprise Decision Intelligence</title>
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body>
+
+    <!-- Header Navigation Bar -->
+    <nav class="navbar navbar-expand-lg landing-nav py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white text-decoration-none" href="/auth/landing-page/">
+                <span class="brand-mark"><i class="fa-solid fa-brain"></i></span>
+                <span class="brand-name">AEDIP<small>Enterprise Intelligence</small></span>
+            </a>
+            <button class="landing-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav mx-auto gap-lg-4 gap-2 align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="/auth/landing-page/" href="/auth/landing-page/">Platform</a></li>
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="/auth/solutions/" href="/auth/solutions/">Solutions</a></li>
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="/auth/call-center/" href="/auth/call-center/">AI Base Call Center <span class="nav-hot">NEW</span></a></li>
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="#decision-center" href="/auth/landing-page/#decision-center">Decision Center</a></li>
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="/auth/architecture/" href="/auth/architecture/">Architecture</a></li>
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="#insights" href="/auth/landing-page/#insights">Insights</a></li>
+                    <li class="nav-item"><a class="nav-link-custom" data-nav="#demo" href="/auth/landing-page/#demo">Demo</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-ghost py-2 px-4" data-bs-toggle="modal" data-bs-target="#authModal">Sign In</button>
+                    <button class="btn btn-glow py-2 px-4" data-bs-toggle="modal" data-bs-target="#authModal">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Architecture Hero -->
+    <section class="hero-section" style="padding-bottom: 60px;">
+        <div class="container">
+            <div class="text-center mx-auto" style="max-width: 780px;">
+                <span class="hero-badge mb-4"><i class="fa-solid fa-diagram-project"></i> Platform Architecture</span>
+                <h1 class="hero-title mb-4">From Data Sources to <span class="text-cyan">Model Improvement</span></h1>
+                <p class="hero-subtitle mx-auto mb-4" style="max-width: 660px;">A continuous intelligence loop: customer conversations and enterprise data flow through AI models, a decision engine, and scenario simulation — ending in business action that feeds back into model improvement.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Flow -->
+    <section class="pb-5">
+        <div class="container">
+            <div class="arch-flow reveal">
+                <div class="arch-step primary">
+                    <span class="arch-num"><i class="fa-solid fa-database"></i></span>
+                    <div><div class="arch-title">Data Sources</div><div class="arch-desc">Operational systems, customer interactions, sales, finance, and CRM data</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-headset"></i></span>
+                    <div><div class="arch-title">AI Base Call Center</div><div class="arch-desc">Transcribes and analyzes customer voice conversations</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-message"></i></span>
+                    <div><div class="arch-title">Customer / Conversation Intelligence</div><div class="arch-desc">Sentiment, intent, complaints, churn risk, and agent performance signals</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-layer-group"></i></span>
+                    <div><div class="arch-title">Enterprise Data Layer</div><div class="arch-desc">Unified, cleaned, versioned business and conversation data</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-robot"></i></span>
+                    <div><div class="arch-title">ML / AI Models</div><div class="arch-desc">AutoML, forecasting, churn, risk, and anomaly models with explainability</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-gears"></i></span>
+                    <div><div class="arch-title">Decision Engine</div><div class="arch-desc">Optimizes across predictions, constraints, and business objectives</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-flask"></i></span>
+                    <div><div class="arch-title">Scenario Simulation</div><div class="arch-desc">Models alternative futures with cost, risk, and impact projections</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                    <div><div class="arch-title">Recommendation Engine</div><div class="arch-desc">Actionable, evidence-backed recommendations with confidence scores</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step primary">
+                    <span class="arch-num"><i class="fa-solid fa-landmark"></i></span>
+                    <div><div class="arch-title">Executive Decision Center</div><div class="arch-desc">KPIs, forecasts, risk, and AI recommendations on one decision surface</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-bullseye"></i></span>
+                    <div><div class="arch-title">Business Action</div><div class="arch-desc">Executives act — reallocate capacity, change strategy, adjust operations</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step">
+                    <span class="arch-num"><i class="fa-solid fa-rotate"></i></span>
+                    <div><div class="arch-title">Outcome / Feedback</div><div class="arch-desc">Real-world results are captured and compared against predictions</div></div>
+                </div>
+                <span class="arch-link"><i class="fa-solid fa-angle-down"></i></span>
+                <div class="arch-step primary">
+                    <span class="arch-num"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                    <div><div class="arch-title">Model Improvement</div><div class="arch-desc">Continuous learning loop sharpens every model in the pipeline</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Notes -->
+    <section class="pb-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 reveal">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-link"></i></div>
+                        <h4 class="text-white mb-3 fw-bold">Unified Ecosystem</h4>
+                        <p class="text-secondary small mb-0">AI Base Call Center is a customer intelligence component of the broader AI Enterprise Decision Intelligence ecosystem — not a separate product.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 reveal">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-rotate"></i></div>
+                        <h4 class="text-white mb-3 fw-bold">Closed Feedback Loop</h4>
+                        <p class="text-secondary small mb-0">Every business action generates outcomes that feed back into the data layer, improving forecasts, risk models, and recommendations over time.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 reveal">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-eye"></i></div>
+                        <h4 class="text-white mb-3 fw-bold">Explainable by Design</h4>
+                        <p class="text-secondary small mb-0">Every recommendation carries an evidence trail and confidence score, enabling traceable, auditable executive decisions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="pb-5">
+        <div class="container">
+            <div class="cta-panel">
+                <h2 class="section-title mb-3">See the architecture <span class="text-cyan">in action</span></h2>
+                <p class="section-subtitle mx-auto mb-4" style="max-width: 560px;">Launch the demo workspace and walk the full loop from data to decision.</p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <button class="btn btn-glow py-3 px-4 fs-6" data-bs-toggle="modal" data-bs-target="#authModal"><i class="fa-solid fa-rocket me-1"></i> Launch Demo Workspace</button>
+                    <a href="/auth/landing-page/#decision-center" class="btn btn-ghost py-3 px-4 fs-6 text-decoration-none"><i class="fa-solid fa-gauge-high me-1"></i> Explore Decision Center</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6">
+                    <a class="d-flex align-items-center gap-2 fw-bold text-white text-decoration-none fs-5 mb-2" href="/auth/landing-page/">
+                        <span class="brand-mark"><i class="fa-solid fa-brain"></i></span> AEDIP Platform
+                    </a>
+                    <p class="text-secondary small mb-0" style="max-width: 380px;">AI Enterprise Decision Intelligence — an enterprise intelligence platform unified with AI Base Call Center customer intelligence, turning operational and conversational data into confident decisions.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex justify-content-md-end flex-wrap gap-4 mb-2">
+                        <a href="/auth/landing-page/">Platform</a>
+                        <a href="/auth/solutions/">Solutions</a>
+                        <a href="/auth/call-center/">AI Base Call Center</a>
+                        <a href="/auth/architecture/">Architecture</a>
+                        <a href="/auth/landing-page/#pricing">Pricing</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Sign In</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Get Started</a>
+                    </div>
+                    <p class="text-secondary small mb-0">© 2026 AI Enterprise Decision Intelligence. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Sign In / Sign Up -->
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-0 text-white p-4">
+                <div class="modal-header border-0 pb-2">
+                    <div class="d-flex w-100 gap-2">
+                        <button class="flex-fill auth-tab btn btn-glow py-2" id="authTabLoginBtn" onclick="switchAuthTab('login')">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Log In
+                        </button>
+                        <button class="flex-fill auth-tab btn btn-ghost py-2" id="authTabRegisterBtn" onclick="switchAuthTab('register')">
+                            <i class="fa-solid fa-user-plus me-1"></i> Create Account
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" id="modalAlert" style="display: none;"></div>
+                    <div class="alert alert-success" id="modalSuccess" style="display: none;"></div>
+                    <div id="authPanelLogin">
+                        <h4 class="modal-title fw-bold mb-3" style="color: var(--accent-cyan);">Welcome back</h4>
+                        <div class="mb-3">
+                            <label class="form-label small text-secondary">Email Address</label>
+                            <input type="email" class="form-control" id="modalEmail" placeholder="analyst@aedip.com">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small text-secondary">Password</label>
+                            <input type="password" class="form-control" id="modalPassword" placeholder="••••••••">
+                        </div>
+                        <button class="btn btn-glow w-100 py-3 mb-2" onclick="submitModalAuth()">
+                            <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In to Platform
+                        </button>
+                        <p class="text-center text-secondary small mb-0 mt-2">
+                            New to AEDIP?
+                            <a href="#" class="text-decoration-none fw-semibold" style="color: var(--accent-cyan);" onclick="switchAuthTab('register'); return false;">Create an account</a>
+                        </p>
+                    </div>
+                    <div id="authPanelRegister" style="display: none;">
+                        <h4 class="modal-title fw-bold mb-3" style="color: var(--accent-cyan);">Create your account</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-secondary">First Name</label>
+                                <input type="text" class="form-control" id="regFirst" placeholder="Jane">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-secondary">Last Name</label>
+                                <input type="text" class="form-control" id="regLast" placeholder="Doe">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-secondary">Email Address</label>
+                            <input type="email" class="form-control" id="regEmail" placeholder="jane.doe@company.com">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-secondary">Password</label>
+                                <input type="password" class="form-control" id="regPassword" placeholder="••••••••">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small text-secondary">Platform Role</label>
+                                <select class="form-select" id="regRole">
+                                    <option value="viewer" selected>Viewer</option>
+                                    <option value="analyst">Analyst</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-glow w-100 py-3 mb-2" onclick="submitModalRegister()">
+                            <i class="fa-solid fa-user-check me-2"></i> Register Account
+                        </button>
+                        <p class="text-center text-secondary small mb-0 mt-2">
+                            Already registered?
+                            <a href="#" class="text-decoration-none fw-semibold" style="color: var(--accent-cyan);" onclick="switchAuthTab('login'); return false;">Sign In here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/landing.js' %}"></script>
+</body>
+</html>

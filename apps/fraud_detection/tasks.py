@@ -55,9 +55,6 @@ def run_anomaly_detection_task(project_id, dataset_id, feature_cols, contaminati
         scores = iso.decision_function(scaled_data)
         
         # Convert decision scores to a Risk Score from 0 to 100
-        # Isolation Forest decision function is normally between -0.5 and 0.5.
-        # Lower score represents more anomalous (outlier).
-        # Shift and scale: score of -0.5 is 100% risk, score of 0.5 is 0% risk.
         min_s, max_s = scores.min(), scores.max()
         if max_s - min_s > 0:
             risk_scores = [round(float((1 - (x - min_s) / (max_s - min_s)) * 100), 2) for x in scores]
@@ -68,23 +65,49 @@ def run_anomaly_detection_task(project_id, dataset_id, feature_cols, contaminati
         logger.info("Fitting Local Outlier Factor...")
         lof = LocalOutlierFactor(n_neighbors=min(20, len(scaled_data)-1), contamination=contamination)
         lof_preds = lof.fit_predict(scaled_data)
+
+        # Fit Multi-Layer Perceptron Autoencoder Bottleneck
+        logger.info("Fitting MLP Autoencoder for anomaly reconstruction error...")
+        from sklearn.neural_network import MLPRegressor
+        bottleneck_dim = max(2, scaled_data.shape[1] // 2)
+        ae = MLPRegressor(hidden_layer_sizes=(bottleneck_dim,), max_iter=200, random_state=42, early_stopping=True)
+        ae.fit(scaled_data, scaled_data)
+        reconstructed = ae.predict(scaled_data)
         
-        # Combine predictions
+        # Reconstruction errors represent anomaly indicators
+        reconstruction_diffs = (scaled_data - reconstructed) ** 2
+        reconstruction_errors = np.mean(reconstruction_diffs, axis=1)
+        
+        # Combine predictions: flagged if Isolation Forest, LOF, or high reconstruction error (top threshold)
+        ae_threshold = np.percentile(reconstruction_errors, 100 - (contamination * 100))
+        
         anomalies_detected = []
         anomaly_count = 0
         
         for idx in range(len(df)):
-            is_anomaly = bool(iso_preds[idx] == -1 or lof_preds[idx] == -1)
+            is_ae_anomaly = bool(reconstruction_errors[idx] >= ae_threshold)
+            is_anomaly = bool(iso_preds[idx] == -1 or lof_preds[idx] == -1 or is_ae_anomaly)
             if is_anomaly:
                 anomaly_count += 1
                 
             # Keep track of riskier rows or sample data
             if is_anomaly or risk_scores[idx] > 70:
                 row_data = df.iloc[idx].replace({np.nan: None}).to_dict()
+                
+                # Identify contributing features based on reconstruction error
+                diffs = reconstruction_diffs[idx]
+                top_features_indices = np.argsort(diffs)[::-1][:3]
+                contributing_factors = [
+                    f"{available_features[i]} (Error: {round(float(diffs[i]), 3)})"
+                    for i in top_features_indices
+                ]
+                
                 anomalies_detected.append({
                     "row_index": idx,
                     "risk_score": risk_scores[idx],
                     "details": {col: row_data[col] for col in available_features},
+                    "contributing_factors": contributing_factors,
+                    "reconstruction_error": round(float(reconstruction_errors[idx]), 4),
                     "full_row": row_data
                 })
                 

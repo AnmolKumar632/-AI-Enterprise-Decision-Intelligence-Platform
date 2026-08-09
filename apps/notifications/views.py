@@ -42,3 +42,22 @@ def api_mark_as_read(request, notification_id):
     except Exception as e:
         logger.error(f"Failed to update notification {notification_id}: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+@login_required_api
+def api_delete_notification(request, notification_id):
+    """Delete a notification for the logged-in user."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Method not allowed. Use POST."}, status=405)
+
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+
+    result = db.notifications.delete_one({
+        "_id": ObjectId(notification_id),
+        "user_id": ObjectId(request.user_data['id'])
+    })
+    if result.deleted_count == 0:
+        return JsonResponse({"error": "Notification not found."}, status=404)
+
+    return JsonResponse({"message": "Notification deleted successfully."}, status=200)

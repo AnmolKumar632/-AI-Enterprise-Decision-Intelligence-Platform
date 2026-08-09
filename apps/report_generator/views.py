@@ -4,6 +4,7 @@ import datetime
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.template.loader import render_to_string
 from bson import ObjectId
 from utilities.db_connection import get_db
 from utilities.decorators import login_required_api
@@ -153,8 +154,8 @@ def api_generate_report(request):
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON payload."}, status=400)
     except Exception as e:
-        logger.error(f"Failed to generate reports: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=500)
+        logger.error(f"Report generation error: {str(e)}")
+        return JsonResponse({"error": f"Report compilation failed: {str(e)}"}, status=500)
 
 @csrf_exempt
 @login_required_api
@@ -185,9 +186,146 @@ def api_download_report(request, report_id):
     file_path = report.get('file_path')
     if os.path.exists(file_path):
         ext = os.path.splitext(file_path)[1].lower()
-        content_type = 'application/pdf' if ext == '.pdf' else 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        content_type = {
+            '.pdf': 'application/pdf',
+            '.html': 'text/html',
+            '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        }.get(ext, 'application/octet-stream')
         response = FileResponse(open(file_path, 'rb'), content_type=content_type)
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
         return response
     else:
         return JsonResponse({"error": "Report file missing from disk."}, status=404)
+
+@csrf_exempt
+@login_required_api
+def api_view_report(request, report_id):
+    """Preview a compiled report inline in the browser."""
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+        return JsonResponse({"error": "Database offline."}, status=500)
+
+    report = db.reports.find_one({"_id": ObjectId(report_id)})
+    if not report or not report.get('file_path'):
+        return JsonResponse({"error": "Report file not found."}, status=404)
+
+    file_path = report.get('file_path')
+    if not os.path.exists(file_path):
+        return JsonResponse({"error": "Report file missing from disk."}, status=404)
+
+    ext = os.path.splitext(file_path)[1].lower()
+    content_type = {
+        '.pdf': 'application/pdf',
+        '.html': 'text/html',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    }.get(ext, 'application/octet-stream')
+
+    response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+    response['Content-Disposition'] = f'inline; filename="{os.path.basename(file_path)}"'
+    return response
+
+@csrf_exempt
+@login_required_api
+def api_generate_datastudio_report(request):
+    """Generate a standalone HTML Data Studio report embedding pinned dashboard widgets."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Method not allowed. Use POST."}, status=405)
+
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+
+    try:
+        data = json.loads(request.body)
+        project_id = data.get('project_id')
+
+        if not project_id:
+            return JsonResponse({"error": "project_id is required."}, status=400)
+
+        project = db.projects.find_one({"_id": ObjectId(project_id)})
+        if not project:
+            return JsonResponse({"error": "Project not found."}, status=404)
+
+        project_name = project.get('name', 'General Workspace')
+
+        # Collect pinned dashboard widgets (charts) for the Data Studio report
+        widgets = list(db.dashboards.find({"project_id": ObjectId(project_id)}).sort("created_at", 1))
+        embedded_widgets = []
+        for w in widgets:
+            cfg = w.get('config', {})
+            if not cfg.get('data'):
+                continue
+            embedded_widgets.append({
+                "title": w.get('title', 'Custom Chart'),
+                "data": cfg['data']
+            })
+
+        # Collect project datasets for reference metadata
+        datasets = list(db.datasets.find({"project_id": ObjectId(project_id)}).sort("created_at", -1))
+        dataset_meta = [{"name": d.get('filename', 'dataset.csv')} for d in datasets]
+
+        html = render_to_string('reports/datastudio_report.html', {
+            "project_name": project_name,
+            "generated_at": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            "widget_count": len(embedded_widgets),
+            "dataset_count": len(dataset_meta),
+            "datasets": dataset_meta,
+            "widgets_json": json.dumps(embedded_widgets)
+        })
+
+        filename = f"datastudio_{project_name.lower().replace(' ', '_')}_{int(datetime.datetime.utcnow().timestamp())}.html"
+        file_path = os.path.join(REPORT_DIR, filename)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        report_id = str(ObjectId())
+        db.reports.insert_one({
+            "_id": ObjectId(report_id),
+            "project_id": ObjectId(project_id),
+            "name": f"Data Studio Report - {project_name}",
+            "format": "html",
+            "file_path": file_path,
+            "created_at": datetime.datetime.utcnow()
+        })
+
+        log_user_activity(
+            request.user_data['id'],
+            "REPORT_DATASSTUDIO",
+            f"Generated Data Studio HTML report for project {project_id}.",
+            request
+        )
+
+        return JsonResponse({
+            "message": "Data Studio report compiled successfully.",
+            "report_id": report_id
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON payload."}, status=400)
+    except Exception as e:
+        logger.error(f"Data Studio report error: {str(e)}")
+        return JsonResponse({"error": f"Data Studio report failed: {str(e)}"}, status=500)
+
+@csrf_exempt
+@login_required_api
+def api_delete_report(request, report_id):
+    """Delete a compiled report record and its file from disk."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Method not allowed. Use POST."}, status=405)
+
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+
+    report = db.reports.find_one({"_id": ObjectId(report_id)})
+    if not report:
+        return JsonResponse({"error": "Report not found."}, status=404)
+
+    file_path = report.get('file_path')
+    db.reports.delete_one({"_id": ObjectId(report_id)})
+    if file_path and os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            logger.error(f"Failed to remove report file {file_path}: {str(e)}")
+
+    log_user_activity(request.user_data['id'], "REPORT_DELETE", f"Deleted report {report_id}.", request)
+    return JsonResponse({"message": "Report deleted successfully."}, status=200)

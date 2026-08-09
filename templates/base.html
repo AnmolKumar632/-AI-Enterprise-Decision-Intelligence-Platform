@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- CSS frameworks -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     
     <!-- Custom styling -->
@@ -22,55 +22,80 @@
 
     <!-- Sidebar Navigation -->
     <div class="sidebar d-flex flex-column justify-content-between">
-        <div>
+        <div class="sidebar-nav-scroll">
             <div class="px-4 py-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center gap-2">
                 <i class="fa-solid fa-brain text-gradient fs-4"></i>
                 <h4 class="mb-0 text-gradient fs-5 fw-bold">AEDIP Platform</h4>
             </div>
             
-            <ul class="nav nav-pills flex-column px-3 mt-4 gap-2">
+            <ul class="nav nav-pills flex-column px-3 mt-3 gap-1">
+                <li class="nav-group-label">Workspace</li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link active" onclick="switchSection('dashboard')">
+                    <a href="#" class="nav-link active" data-section="dashboard" onclick="switchSection('dashboard')">
                         <i class="fa-solid fa-chart-line me-2"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('datasets')">
+                    <a href="#" class="nav-link" data-section="datasets" onclick="switchSection('datasets')">
                         <i class="fa-solid fa-database me-2"></i> Datasets
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('eda')">
+                    <a href="#" class="nav-link" data-section="data-intelligence" onclick="switchSection('data-intelligence')">
+                        <i class="fa-solid fa-network-wired me-2"></i> Data Intelligence
+                    </a>
+                </li>
+
+                <li class="nav-group-label">AI &amp; Analytics</li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="eda" onclick="switchSection('eda')">
                         <i class="fa-solid fa-magnifying-glass-chart me-2"></i> Automated EDA
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('automl')">
+                    <a href="#" class="nav-link" data-section="automl" onclick="switchSection('automl')">
                         <i class="fa-solid fa-robot me-2"></i> AutoML Engine
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('forecasting')">
+                    <a href="#" class="nav-link" data-section="forecasting" onclick="switchSection('forecasting')">
                         <i class="fa-solid fa-arrow-trend-up me-2"></i> Forecasting
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('anomalies')">
-                        <i class="fa-solid fa-shield-halved me-2"></i> Anomalies & Risk
+                    <a href="#" class="nav-link" data-section="anomalies" onclick="switchSection('anomalies')">
+                        <i class="fa-solid fa-shield-halved me-2"></i> Anomalies &amp; Risk
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('nlp')">
+                    <a href="#" class="nav-link" data-section="nlp" onclick="switchSection('nlp')">
                         <i class="fa-solid fa-message me-2"></i> NLP Analytics
                     </a>
                 </li>
+
+                <li class="nav-group-label">Decision Center</li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="switchSection('reports')">
+                    <a href="#" class="nav-link" data-section="visualizer" onclick="switchSection('visualizer')">
+                        <i class="fa-solid fa-chart-pie me-2"></i> Data Studio
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="scenario-simulator" onclick="switchSection('scenario-simulator')">
+                        <i class="fa-solid fa-dice-d6 me-2"></i> Scenario Simulator
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="ai-recommendations" onclick="switchSection('ai-recommendations')">
+                        <i class="fa-solid fa-lightbulb me-2"></i> AI Recommendations
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="reports" onclick="switchSection('reports')">
                         <i class="fa-solid fa-file-invoice me-2"></i> Executive Reports
                     </a>
                 </li>
                 <li class="nav-item" id="nav-audit-logs" style="display: none;">
-                    <a href="#" class="nav-link" onclick="switchSection('audit-logs')">
+                    <a href="#" class="nav-link" data-section="audit-logs" onclick="switchSection('audit-logs')">
                         <i class="fa-solid fa-clipboard-list me-2"></i> Audit Logs
                     </a>
                 </li>
@@ -78,7 +103,7 @@
         </div>
         
         <!-- User Profile & Action Box -->
-        <div class="p-3 border-top border-secondary border-opacity-25">
+        <div class="p-3 border-top border-secondary border-opacity-25 sidebar-profile">
             <div class="d-flex align-items-center gap-2 mb-3">
                 <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                     <i class="fa-solid fa-user text-white"></i>
@@ -97,13 +122,21 @@
     <!-- Main Content Area -->
     <div class="main-content">
         <!-- Top Toolbar Header -->
-        <header class="d-flex justify-content-between align-items-center mb-4 glass-panel py-3 px-4">
+        <header class="d-flex justify-content-between align-items-center mb-4 glass-panel py-3 px-4 top-toolbar">
             <div>
                 <h5 class="mb-0 text-muted" id="current-project-label">Select Workspace</h5>
                 <h2 class="mb-0 fs-3 fw-bold text-gradient" id="section-title">Overview Dashboard</h2>
             </div>
             
             <div class="d-flex align-items-center gap-3">
+                <!-- Global Search Input -->
+                <div class="position-relative">
+                    <input type="text" class="form-control form-control-sm border-secondary border-opacity-25 bg-dark text-white px-3 py-2" placeholder="Search workspace..." id="globalSearchInput" onkeyup="runGlobalSearch(event)" style="width: 200px; border-radius: 8px;">
+                    <div class="dropdown-menu dropdown-menu-end glass-panel mt-2 p-3 text-white border border-secondary border-opacity-25" id="searchResultsDropdown" style="width: 320px; display: none; max-height: 400px; overflow-y: auto; z-index: 1050; position: absolute; background: #0f172a;">
+                        <h6 class="border-bottom border-secondary border-opacity-25 pb-2 text-gradient fw-bold">Search Results</h6>
+                        <div id="searchResultsList" class="d-flex flex-column gap-2 mt-2"></div>
+                    </div>
+                </div>
                 <!-- Notifications Dropdown -->
                 <div class="dropdown">
                     <button class="btn btn-glass-secondary position-relative px-3 py-2" type="button" data-bs-toggle="dropdown" id="notificationBtn" onclick="loadNotifications()">
@@ -126,6 +159,9 @@
                 </select>
                 <button class="btn btn-glass-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
                     <i class="fa-solid fa-plus me-1"></i> New
+                </button>
+                <button class="btn btn-glass-secondary" onclick="deleteCurrentWorkspace()" title="Delete current workspace" style="color: #f87171;">
+                    <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
         </header>
@@ -161,7 +197,7 @@
     </div>
 
     <!-- JS dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -304,16 +340,50 @@
             });
         }
 
+        function deleteCurrentWorkspace() {
+            if (!currentProjectId) {
+                alert("No workspace selected to delete.");
+                return;
+            }
+            if (!confirm("Are you sure you want to delete this workspace and ALL of its datasets, models, reports, and charts? This cannot be undone.")) return;
+            
+            fetch(`/api/project/delete/${currentProjectId}/`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Failed to delete workspace") });
+                }
+                return res.json();
+            })
+            .then(() => {
+                currentProjectId = "";
+                localStorage.removeItem('current_project_id');
+                loadWorkspaces();
+                alert("Workspace deleted successfully.");
+            })
+            .catch(err => {
+                alert("Error: " + err.message);
+            });
+        }
+
         function switchSection(sectionId) {
             // Update active nav links
             document.querySelectorAll('.sidebar .nav-link').forEach(link => {
                 link.classList.remove('active');
             });
-            event.currentTarget.classList.add('active');
+            const targetNav = document.querySelector('.sidebar .nav-link[data-section="' + sectionId + '"]');
+            if (targetNav) {
+                targetNav.classList.add('active');
+            } else if (event && event.currentTarget && event.currentTarget.classList) {
+                event.currentTarget.classList.add('active');
+            }
             
             // Update title
             const titles = {
                 'dashboard': 'Overview Dashboard',
+                'visualizer': 'Interactive Data Studio & Custom Dashboard',
                 'datasets': 'Dataset Workspace Management',
                 'eda': 'Automated Exploratory Data Analysis',
                 'automl': 'AutoML Predictive Engine',
@@ -321,7 +391,10 @@
                 'anomalies': 'Risk & Anomaly Audits',
                 'nlp': 'Natural Language Query Engine',
                 'reports': 'Executive Report Compilation',
-                'audit-logs': 'System Activity Audit Trails'
+                'audit-logs': 'System Activity Audit Trails',
+                'data-intelligence': 'Data Intelligence Workspace',
+                'scenario-simulator': 'Decision Scenario Simulator',
+                'ai-recommendations': 'AI Recommendation Engine'
             };
             document.getElementById('section-title').innerText = titles[sectionId] || 'Workspace';
             
@@ -372,9 +445,14 @@
                         li.onclick = () => markNotificationRead(n._id);
                         
                         li.innerHTML = `
-                            <span class="text-white fw-semibold small d-flex justify-content-between">
-                                ${n.title}
-                                ${!n.is_read ? '<span class="badge bg-primary">New</span>' : ''}
+                            <span class="text-white fw-semibold small d-flex justify-content-between align-items-center">
+                                <span>${n.title}</span>
+                                <span class="d-flex align-items-center gap-1">
+                                    ${!n.is_read ? '<span class="badge bg-primary">New</span>' : ''}
+                                    <button class="btn btn-sm p-0 border-0 text-danger" title="Delete notification" onclick="event.stopPropagation(); deleteNotification('${n._id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </span>
                             </span>
                             <span class="text-muted small" style="font-size: 11px;">${n.message}</span>
                         `;
@@ -399,6 +477,20 @@
                 headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
             })
             .then(() => loadNotifications());
+        }
+
+        function deleteNotification(notifId) {
+            if (!confirm("Delete this notification?")) return;
+            fetch(`/notifications/api/delete/${notifId}/`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+            })
+            .then(() => {
+                loadNotifications();
+                if (typeof loadNotificationsList === 'function') {
+                    loadNotificationsList();
+                }
+            });
         }
 
         function loadAuditLogs() {
@@ -426,6 +518,82 @@
             });
         }
 
+        function runGlobalSearch(event) {
+            const query = event.target.value.trim();
+            const dropdown = document.getElementById('searchResultsDropdown');
+            const list = document.getElementById('searchResultsList');
+            
+            if (!query) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            
+            if (!currentProjectId) return;
+            
+            fetch(`/api/search/?project_id=${currentProjectId}&q=${encodeURIComponent(query)}`, {
+                headers: { 'Authorization': 'Bearer ' + getCookie('access_token') }
+            })
+            .then(res => res.json())
+            .then(data => {
+                dropdown.style.display = 'block';
+                list.innerHTML = '';
+                
+                let count = 0;
+                const addCategory = (title, items, icon) => {
+                    if (items && items.length > 0) {
+                        count += items.length;
+                        const header = document.createElement('div');
+                        header.className = 'text-secondary small fw-bold mt-1';
+                        header.innerHTML = `<i class="${icon} me-1"></i> ${title}`;
+                        list.appendChild(header);
+                        
+                        items.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'p-2 rounded bg-secondary bg-opacity-25 hover-item small cursor-pointer text-white text-truncate';
+                            div.innerText = item.name || item.event || item.title || "Asset";
+                            
+                            // Map action click to switch tab
+                            div.onclick = () => {
+                                dropdown.style.display = 'none';
+                                event.target.value = '';
+                                if (title === 'Datasets') {
+                                    switchSection('datasets');
+                                    loadDatasetDetail(item.id);
+                                } else if (title === 'Models') {
+                                    switchSection('automl');
+                                } else if (title === 'Alerts') {
+                                    switchSection('dashboard');
+                                } else if (title === 'Conversations') {
+                                    switchSection('nlp');
+                                    loadConversationMessages(item.id);
+                                }
+                            };
+                            list.appendChild(div);
+                        });
+                    }
+                };
+                
+                addCategory('Datasets', data.datasets, 'fa-solid fa-database');
+                addCategory('Models', data.models, 'fa-solid fa-robot');
+                addCategory('Reports', data.reports, 'fa-solid fa-file-invoice');
+                addCategory('Alerts', data.alerts, 'fa-solid fa-bell');
+                addCategory('Conversations', data.conversations, 'fa-solid fa-message');
+                
+                if (count === 0) {
+                    list.innerHTML = '<div class="text-center text-muted small py-3">No matching assets found</div>';
+                }
+            });
+        }
+        
+        // Hide search dropdown on click outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('searchResultsDropdown');
+            const searchInput = document.getElementById('globalSearchInput');
+            if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
+                dropdown.style.display = 'none';
+            }
+        });
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -440,6 +608,25 @@
             }
             return cookieValue || localStorage.getItem('access_token');
         }
+
+        // Allow mouse-wheel scrolling of the sidebar nav from anywhere on the sidebar
+        // (including the pinned user profile area and gaps between nav items).
+        (function initSidebarWheelScroll() {
+            const sidebar = document.querySelector('.sidebar');
+            const scroller = sidebar && sidebar.querySelector('.sidebar-nav-scroll');
+            if (!sidebar || !scroller) return;
+            sidebar.addEventListener('wheel', function (e) {
+                if (scroller.contains(e.target)) return;
+                const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+                if (maxScroll <= 0) return;
+                const atTop = scroller.scrollTop <= 0;
+                const atBottom = scroller.scrollTop >= maxScroll;
+                const delta = e.deltaY || e.detail || 0;
+                if ((atTop && delta < 0) || (atBottom && delta > 0)) return;
+                scroller.scrollTop += delta;
+                e.preventDefault();
+            }, { passive: false });
+        })();
     </script>
 </body>
 </html>

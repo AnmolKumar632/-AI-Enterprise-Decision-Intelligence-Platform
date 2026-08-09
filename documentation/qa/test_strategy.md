@@ -1,6 +1,6 @@
 # 2. Test Strategy - AEDIP
 
-**Date:** 2026-08-06  
+**Date:** 2026-08-07  
 
 ---
 

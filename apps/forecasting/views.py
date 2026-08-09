@@ -39,6 +39,14 @@ def api_run_forecast(request):
             
         project_id = str(dataset.get('project_id'))
         
+        # Match columns case-insensitively and whitespace-insensitively
+        columns_list = dataset.get('metadata', {}).get('columns', [])
+        for col in columns_list:
+            if col.strip().lower() == date_col.strip().lower():
+                date_col = col
+            if col.strip().lower() == target_col.strip().lower():
+                target_col = col
+                
         # Verify columns exist
         schema = dataset.get('metadata', {}).get('schema', {})
         if date_col not in schema or target_col not in schema:
@@ -89,3 +97,29 @@ def api_get_forecast_results(request, project_id):
         f['dataset_id'] = str(f['dataset_id'])
         
     return JsonResponse({"forecasts": forecasts}, status=200)
+
+@csrf_exempt
+@login_required_api
+def api_delete_prediction(request, prediction_id):
+    """Delete a stored prediction result (forecast or anomaly scan)."""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Method not allowed. Use POST."}, status=405)
+
+    if db is None:
+        return JsonResponse({"error": "Database offline."}, status=500)
+
+    prediction = db.predictions.find_one({"_id": ObjectId(prediction_id)})
+    if not prediction:
+        return JsonResponse({"error": "Prediction result not found."}, status=404)
+
+    ptype = prediction.get('type', 'prediction')
+    db.predictions.delete_one({"_id": ObjectId(prediction_id)})
+
+    log_user_activity(
+        request.user_data['id'],
+        "PREDICTION_DELETE",
+        f"Deleted {ptype} result {prediction_id}.",
+        request
+    )
+
+    return JsonResponse({"message": "Prediction result deleted successfully."}, status=200)

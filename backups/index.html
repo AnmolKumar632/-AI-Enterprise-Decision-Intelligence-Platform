@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Enterprise Decision Intelligence Platform (AEDIP)</title>
+    <meta name="description" content="A state-of-the-art business intelligence platform translating operational business statistics into strategic insights using AutoML, Explainable AI, and Forecasting.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Core Brand Stylesheet -->
+    <link rel="stylesheet" href="static/css/styles.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Custom layout & design additions for landing showcase */
+        :root {
+            --font-headings: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: radial-gradient(circle at 50% 0%, #0e172a 0%, var(--bg-primary) 70%);
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-headings);
+        }
+
+        .header-logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-logo i {
+            -webkit-text-fill-color: #60a5fa;
+        }
+
+        /* Hero Section styles */
+        .hero-section {
+            padding: 120px 20px 80px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 99px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #818cf8;
+            margin-bottom: 24px;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+
+        /* Tech Stack Badges Grid */
+        .tech-badges-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .tech-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .tech-badge:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-2px);
+        }
+
+        /* Section dividers & layout */
+        .section-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 32px;
+            transition: var(--transition-smooth);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: var(--card-shadow);
+        }
+
+        .feature-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--accent-blue);
+            font-size: 20px;
+        }
+
+        .feature-card.green .feature-icon-wrapper {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .feature-card.purple .feature-icon-wrapper {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .feature-card.red .feature-icon-wrapper {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        /* Mock Sandbox Workspace Styling */
+        .sandbox-wrapper {
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            background: rgba(10, 15, 30, 0.85);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            height: 720px;
+            margin-top: 20px;
+        }
+
+        .sandbox-sidebar {
+            width: 260px;
+            border-right: 1px solid var(--border-glass);
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .sandbox-sidebar-brand {
+            padding: 0 24px 20px 24px;
+            border-bottom: 1px solid var(--border-glass);
+            font-weight: 800;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sandbox-menu {
+            list-style: none;
+            padding: 20px 10px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+        }
+
+        .sandbox-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+
+        .sandbox-menu-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sandbox-menu-item.active {
+            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 0 8px 8px 0;
+            padding-left: 13px;
+        }
+
+        .sandbox-menu-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .sandbox-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Inner sandbox components */
+        .sandbox-tab-panel {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sandbox-tab-panel.active {
+            display: flex;
+        }
+
+        /* KPI grids */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-metric-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 20px;
+            transition: var(--transition-smooth);
+        }
+
+        .kpi-metric-card.green { border-left-color: var(--accent-green); }
+        .kpi-metric-card.purple { border-left-color: var(--accent-purple); }
+        .kpi-metric-card.red { border-left-color: var(--accent-red); }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .kpi-val {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: var(--font-headings);
+        }
+
+        /* Data table preview styling */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            text-align: left;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .data-table th {
+            background: rgba(255, 255, 255, 0.04);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .cell-missing {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border: 1px dashed var(--accent-red);
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+        }
+
+        .cell-imputed {
+            background: rgba(16, 185, 129, 0.15) !important;
+            border: 1px solid var(--accent-green);
+            color: var(--text-primary);
+            font-weight: 600;
+            animation: pulse-green 2s infinite;
+        }
+
+        .cell-anomaly {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border: 1px solid var(--accent-red);
+            font-weight: 600;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Preprocessor Console terminal */
+        .terminal-box {
+            background: #05070c;
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: #38bdf8;
+            height: 140px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .terminal-line {
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        .terminal-line.success { color: var(--accent-green); }
+        .terminal-line.warn { color: var(--accent-purple); }
+        .terminal-line.danger { color: var(--accent-red); }
+
+        /* Lock overlay */
+        .tab-locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .lock-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Documentation Markdown rendering rules */
+        .docs-block {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .docs-block h3 {
+            font-size: 20px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        .docs-block h3:first-of-type {
+            margin-top: 0;
+        }
+
+        .docs-code-container {
+            position: relative;
+            margin: 16px 0;
+        }
+
+        .docs-code {
+            background: #090d16;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: #e2e8f0;
+            overflow-x: auto;
+            margin: 0;
+        }
+
+        .copy-code-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .copy-code-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+        }
+
+        /* NLP Chat component specifics */
+        .chat-input-row {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+            border-top: 1px solid var(--border-glass);
+            padding-top: 20px;
+        }
+
+        .chat-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-pill {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-radius: 99px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .suggestion-pill:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* SVG chart container rules */
+        .chart-wrapper {
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+            position: relative;
+        }
+
+        /* Global Header/Nav */
+        .global-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .header-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .header-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+
+        .header-link:hover {
+            color: var(--text-primary);
+        }
+
+        .loading-ring {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer styling */
+        .footer {
+            border-top: 1px solid var(--border-glass);
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 80px;
+            background: rgba(5, 7, 12, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-logo">
+            <i class="fa-solid fa-brain"></i>
+            <span>AEDIP</span>
+        </div>
+        <nav class="header-links">
+            <a href="#features" class="header-link">Features</a>
+            <a href="#demo" class="header-link">Interactive Sandbox</a>
+            <a href="#quickstart" class="header-link">Local Quickstart</a>
+            <a href="https://github.com/AnmolKumar632/-AI-Enterprise-Decision-Intelligence-Platform" target="_blank" class="header-link">
+                <i class="fa-brands fa-github"></i> GitHub
+            </a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-badge">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Interactive Demo Ready</span>
+        </div>
+        <h1 class="hero-title">🧠 AI Enterprise Decision<br>Intelligence Platform</h1>
+        <p class="hero-subtitle">
+            Transform operational business statistics into strategic, high-value decisions. Evaluate machine learning pipelines, forecast trends, detect anomalies, and perform natural language dataset queries.
+        </p>
+        <div class="hero-cta">
+            <a href="#demo" class="btn-glass-primary">Launch Interactive Sandbox</a>
+            <a href="#quickstart" class="btn-glass-secondary">View Local Setup Guide</a>
+        </div>
+
+        <!-- Tech Stack Badge Row -->
+        <div class="tech-badges-container">
+            <div class="tech-badge"><i class="fa-brands fa-python" style="color: #3776ab;"></i> Python 3.14</div>
+            <div class="tech-badge"><i class="fa-solid fa-server" style="color: #092e20;"></i> Django 6.1</div>
+            <div class="tech-badge"><i class="fa-solid fa-leaf" style="color: #47a248;"></i> MongoDB 8.2</div>
+            <div class="tech-badge"><i class="fa-solid fa-gears" style="color: #f7931e;"></i> Scikit-Learn</div>
+            <div class="tech-badge"><i class="fa-solid fa-bolt" style="color: #ff6f20;"></i> XGBoost 3.4</div>
+            <div class="tech-badge"><i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i> Statsmodels</div>
+            <div class="tech-badge"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> ReportLab PDF</div>
+            <div class="tech-badge"><i class="fa-solid fa-cubes" style="color: #2496ed;"></i> Docker</div>
+        </div>
+    </section>
+
+    <!-- Interactive Showcase Section -->
+    <section id="demo" class="section-container">
+        <h2 class="section-title">🎮 Platform Interactive Sandbox</h2>
+        <p class="section-subtitle">
+            Experience the core business intelligence and model execution features of AEDIP directly inside your browser. Select a dataset below to get started.
+        </p>
+
+        <!-- Sandbox Application frame -->
+        <div class="sandbox-wrapper">
+            <!-- Sidebar -->
+            <div class="sandbox-sidebar">
+                <div class="sandbox-sidebar-brand">
+                    <i class="fa-solid fa-brain text-gradient"></i>
+                    <span>AEDIP Hub</span>
+                </div>
+                <ul class="sandbox-menu">
+                    <li><a href="#" class="sandbox-menu-item active" onclick="switchSandboxTab(event, 'tab-dataset')">
+                        <i class="fa-solid fa-file-csv"></i> Datasets & Cleaning
+                    </a></li>
+                    <li><a href="#" id="menu-dashboard" class="sandbox-menu-item disabled" onclick="switchSandboxTab(event, 'tab-dashboard')">
+                        <i class="fa-solid fa-chart-pie"></i> Visual Dashboard
+                    </a></li>
+                    <li><a href="#" id="menu-automl" class="sandbox-menu-item disabled" onclick="switchSandboxTab(event, 'tab-automl')">
+                        <i class="fa-solid fa-robot"></i> AutoML Leaderboard
+                    </a></li>
+                    <li><a href="#" id="menu-forecasting" class="sandbox-menu-item disabled" onclick="switchSandboxTab(event, 'tab-forecasting')">
+                        <i class="fa-solid fa-chart-line"></i> Time-Series Forecast
+                    </a></li>
+                    <li><a href="#" id="menu-fraud" class="sandbox-menu-item disabled" onclick="switchSandboxTab(event, 'tab-fraud')">
+                        <i class="fa-solid fa-shield-halved"></i> Anomaly Scanner
+                    </a></li>
+                    <li><a href="#" id="menu-nlp" class="sandbox-menu-item disabled" onclick="switchSandboxTab(event, 'tab-nlp')">
+                        <i class="fa-solid fa-comments"></i> NLP Query Engine
+                    </a></li>
+                    <li><a href="#" id="menu-reports" class="sandbox-menu-item disabled" onclick="switchSandboxTab(event, 'tab-reports')">
+                        <i class="fa-solid fa-file-invoice"></i> Executive Reports
+                    </a></li>
+                </ul>
+                <div style="padding: 20px; border-top: 1px solid var(--border-glass);">
+                    <div style="font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                        <span class="loading-ring" style="width: 8px; height: 8px; border-width: 1px; border-top-color: var(--accent-green);"></span>
+                        <span>Backend Simulation Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="sandbox-content">
+                
+                <!-- Tab: Dataset Upload & Cleaning -->
+                <div id="tab-dataset" class="sandbox-tab-panel active">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">Dataset Manager</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Upload custom data spreadsheets or load pre-built benchmark datasets.</p>
+                        </div>
+                        <div id="dataset-status-badge" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--accent-red); border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600;">
+                            Status: Uncleaned Raw Data
+                        </div>
+                    </div>
+
+                    <!-- Dropzone / Benchmark Loaders -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div class="upload-dropzone" onclick="triggerFileUpload()">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px; color: var(--accent-blue); margin-bottom: 12px;"></i>
+                            <h4 style="margin: 0 0 6px 0; font-size: 15px;">Drag & Drop Spreadsheet Here</h4>
+                            <p style="margin: 0; color: var(--text-secondary); font-size: 11.5px;">Supports CSV, XLS, XLSX formats up to 50MB</p>
+                            <input type="file" id="sandbox-file-input" style="display: none;" onchange="handleSandboxFileUpload(event)">
+                        </div>
+                        <div class="glass-panel" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between; background: rgba(255, 255, 255, 0.01);">
+                            <h4 style="margin: 0 0 8px 0; font-size: 15px;">Load Sample Benchmark Datasets</h4>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <button class="btn-glass-secondary" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; text-align: left;" onclick="loadBenchmarkDataset('sales')">
+                                    <span><i class="fa-solid fa-cart-shopping" style="color: var(--accent-blue); margin-right: 8px;"></i> Enterprise Sales & Profit</span>
+                                    <span style="font-size: 11px; color: var(--text-secondary);">152 rows | Missing values</span>
+                                </button>
+                                <button class="btn-glass-secondary" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; text-align: left;" onclick="loadBenchmarkDataset('fraud')">
+                                    <span><i class="fa-solid fa-user-shield" style="color: var(--accent-red); margin-right: 8px;"></i> Transactional Fraud Audits</span>
+                                    <span style="font-size: 11px; color: var(--text-secondary);">122 rows | Anomalies</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dataset Preview & Control -->
+                    <div id="dataset-preview-container" style="display: none; flex-direction: column; flex-grow: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="margin: 0; font-size: 15px;" id="dataset-preview-title">Preview: sales_data.csv</h4>
+                            <button id="btn-run-clean" class="btn-glass-primary" onclick="runPreprocessingPipeline()">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="margin-right: 6px;"></i> Run Preprocessing Pipeline
+                            </button>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="table-responsive" style="max-height: 220px; flex-grow: 1;">
+                            <table class="data-table" id="preview-data-table">
+                                <!-- Loaded dynamically via JS -->
+                            </table>
+                        </div>
+
+                        <!-- Preprocessor Logs Terminal -->
+                        <h4 style="margin: 0 0 8px 0; font-size: 13px; color: var(--text-secondary);">Preprocessing Engine Logs</h4>
+                        <div class="terminal-box" id="preprocessor-terminal">
+                            <div class="terminal-line">&gt; Waiting for ingestion or pipeline trigger...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Visual Dashboard Overview -->
+                <div id="tab-dashboard" class="sandbox-tab-panel">
+                    <div class="tab-locked-overlay" id="lock-dashboard">
+                        <div class="lock-icon-wrapper"><i class="fa-solid fa-lock"></i></div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 18px;">Dashboard Locked</h4>
+                        <p style="margin: 0 0 20px 0; color: var(--text-secondary); max-width: 400px; font-size: 13.5px;">You must complete the Preprocessing Pipeline in the **Datasets & Cleaning** tab first to generate clean metric structures.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">Executive Dashboard</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Summary parameters and statistical charts for the active project.</p>
+                        </div>
+                    </div>
+
+                    <!-- KPI metrics -->
+                    <div class="kpi-grid" id="dashboard-kpi-grid">
+                        <!-- Filled dynamically -->
+                    </div>
+
+                    <!-- Chart Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1;">
+                        <div class="glass-panel" style="padding: 20px; display: flex; flex-direction: column;">
+                            <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary);">Sales Distribution by Category</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chart-dashboard-distribution"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-panel" style="padding: 20px; display: flex; flex-direction: column;">
+                            <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary);">Monthly Profit vs Revenue Metrics</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chart-dashboard-trend"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: AutoML Engine Leaderboard -->
+                <div id="tab-automl" class="sandbox-tab-panel">
+                    <div class="tab-locked-overlay" id="lock-automl">
+                        <div class="lock-icon-wrapper"><i class="fa-solid fa-lock"></i></div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 18px;">AutoML Engine Locked</h4>
+                        <p style="margin: 0 0 20px 0; color: var(--text-secondary); max-width: 400px; font-size: 13.5px;">Please run the dataset cleaning pipeline first to configure feature matrices.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">AutoML Training Engine</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Automates model fits across classification or regression algorithms with parameter search.</p>
+                        </div>
+                    </div>
+
+                    <!-- Parameter Setup -->
+                    <div class="glass-panel" style="padding: 20px; margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-end; background: rgba(255, 255, 255, 0.01);">
+                        <div style="flex-grow: 1;">
+                            <label style="display: block; font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px;">Target Dependent Feature (Y-Variable)</label>
+                            <select class="form-select" style="width: 100%; padding: 8px 12px;" id="automl-target-select">
+                                <option value="Profit">Profit (Numerical - Regressor Model)</option>
+                                <option value="Sales">Sales (Numerical - Regressor Model)</option>
+                            </select>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <label style="display: block; font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px;">Evaluation Metric</label>
+                            <select class="form-select" style="width: 100%; padding: 8px 12px;">
+                                <option>R-Squared (R²)</option>
+                                <option>Mean Absolute Error (MAE)</option>
+                                <option>Root Mean Squared Error (RMSE)</option>
+                            </select>
+                        </div>
+                        <button class="btn-glass-primary" style="padding: 9px 24px;" id="btn-run-automl" onclick="runAutoMLPipeline()">
+                            <i class="fa-solid fa-microchip" style="margin-right: 6px;"></i> Start AutoML Fits
+                        </button>
+                    </div>
+
+                    <!-- Terminal and Leaderboard Grid -->
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; flex-grow: 1; min-height: 0;">
+                        <!-- Terminal logs -->
+                        <div style="display: flex; flex-direction: column;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: var(--text-secondary);">Model Fitting Iteration Progress</h4>
+                            <div class="terminal-box" style="flex-grow: 1; height: 100%; max-height: 250px;" id="automl-terminal">
+                                <div class="terminal-line">&gt; Ready for model configurations...</div>
+                            </div>
+                        </div>
+
+                        <!-- Leaderboard table -->
+                        <div style="display: flex; flex-direction: column;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: var(--text-secondary);">Model Performance Leaderboard</h4>
+                            <div class="table-responsive" style="flex-grow: 1; margin-bottom: 0;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Algorithm</th>
+                                            <th>R² Score</th>
+                                            <th>MAE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="automl-leaderboard-tbody">
+                                        <tr>
+                                            <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 40px;">No models fitted. Start the AutoML process.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Forecasting (ARIMA / Holt-Winters) -->
+                <div id="tab-forecasting" class="sandbox-tab-panel">
+                    <div class="tab-locked-overlay" id="lock-forecasting">
+                        <div class="lock-icon-wrapper"><i class="fa-solid fa-lock"></i></div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 18px;">Forecasting Engine Locked</h4>
+                        <p style="margin: 0 0 20px 0; color: var(--text-secondary); max-width: 400px; font-size: 13.5px;">Clean dataset inputs are required to perform historical trend decomposition.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">Time Series Forecasting (ARIMA)</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Compute auto-regressive forecast predictions with confidence interval bands.</p>
+                        </div>
+                    </div>
+
+                    <!-- Sliders & Configurations -->
+                    <div class="glass-panel" style="padding: 20px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.01);">
+                        <div style="display: flex; gap: 30px; align-items: center;">
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <label style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">Forecast Horizon (Months)</label>
+                                    <span style="font-size: 12px; color: var(--accent-blue); font-weight: 700;" id="val-horizon">6 months</span>
+                                </div>
+                                <input type="range" class="form-range" style="width: 100%; accent-color: var(--accent-blue);" min="3" max="12" value="6" id="slider-horizon" oninput="updateForecastHorizon(this.value)">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px;">Confidence Threshold</label>
+                                <select class="form-select" style="padding: 8px 12px;">
+                                    <option>95% Confidence Band</option>
+                                    <option>99% Confidence Band</option>
+                                    <option>90% Confidence Band</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Forecast Line Chart -->
+                    <div class="glass-panel" style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
+                        <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary);">Benchmark Sales Trend vs Forecasting Extrapolation</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-forecast-line"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Fraud Detection Anomaly Scanner -->
+                <div id="tab-fraud" class="sandbox-tab-panel">
+                    <div class="tab-locked-overlay" id="lock-fraud">
+                        <div class="lock-icon-wrapper"><i class="fa-solid fa-lock"></i></div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 18px;">Anomaly Scanner Locked</h4>
+                        <p style="margin: 0 0 20px 0; color: var(--text-secondary); max-width: 400px; font-size: 13.5px;">Anomaly scanners require dataset schema bindings to run isolation sweeps.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">Isolation Forest Anomaly Scanner</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Highlights statistical outliers and potential fraud alerts using unsupervised isolation trees.</p>
+                        </div>
+                    </div>
+
+                    <!-- Contamination Controls -->
+                    <div class="glass-panel" style="padding: 20px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.01);">
+                        <div style="display: flex; gap: 30px; align-items: center;">
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <label style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">Isolation Forest Contamination (Threshold)</label>
+                                    <span style="font-size: 12px; color: var(--accent-red); font-weight: 700;" id="val-contamination">5% (Highly Sensitive)</span>
+                                </div>
+                                <input type="range" class="form-range" style="width: 100%; accent-color: var(--accent-red);" min="1" max="10" value="5" id="slider-contamination" oninput="updateContaminationThreshold(this.value)">
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px;">Features Inspected</div>
+                                <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Amount, Age, Failed_Logins</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outlier logs -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; min-height: 0;">
+                        <div class="glass-panel" style="padding: 20px; display: flex; flex-direction: column;">
+                            <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary);">Anomalies In Context (Amount vs Age Scatter)</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chart-fraud-scatter"></canvas>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: var(--text-secondary);">Transaction Anomaly Audit Feed</h4>
+                            <div class="table-responsive" style="flex-grow: 1; margin-bottom: 0;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Amount</th>
+                                            <th>Age</th>
+                                            <th>Failed Logins</th>
+                                            <th>Risk Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fraud-audit-tbody">
+                                        <!-- Loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: NLP Query Chat Engine -->
+                <div id="tab-nlp" class="sandbox-tab-panel">
+                    <div class="tab-locked-overlay" id="lock-nlp">
+                        <div class="lock-icon-wrapper"><i class="fa-solid fa-lock"></i></div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 18px;">NLP Engine Locked</h4>
+                        <p style="margin: 0 0 20px 0; color: var(--text-secondary); max-width: 400px; font-size: 13.5px;">Upload and clean a dataset to allow natural language database indexing.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">NLP Query Engine</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Interpret queries, slice dataframes, and render custom metrics without SQL.</p>
+                        </div>
+                    </div>
+
+                    <!-- Chat area -->
+                    <div class="glass-panel" style="padding: 24px; flex-grow: 1; display: flex; flex-direction: column; min-height: 0;">
+                        <!-- Message Container -->
+                        <div class="chat-messages" id="nlp-chat-box" style="flex-grow: 1; margin-bottom: 16px;">
+                            <div class="message-bubble ai">
+                                Hello! I'm the AEDIP NLP analytical assistant. I have mapped the columns and indexes of your dataset. Ask me questions like `"Why did sales decrease?"` or `"Which region has maximum sales?"`.
+                            </div>
+                        </div>
+
+                        <!-- Suggestions Row -->
+                        <div class="chat-suggestions" id="nlp-suggestions-container">
+                            <!-- JS populated -->
+                        </div>
+
+                        <!-- Input row -->
+                        <div class="chat-input-row">
+                            <input type="text" class="form-control" style="flex-grow: 1; padding: 12px 18px;" placeholder="Ask a business query..." id="nlp-chat-input" onkeypress="handleNlpInputKeyPress(event)">
+                            <button class="btn-glass-primary" style="padding: 10px 24px;" onclick="sendNlpChatQuery()">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Executive Brief Generator -->
+                <div id="tab-reports" class="sandbox-tab-panel">
+                    <div class="tab-locked-overlay" id="lock-reports">
+                        <div class="lock-icon-wrapper"><i class="fa-solid fa-lock"></i></div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 18px;">Exporters Locked</h4>
+                        <p style="margin: 0 0 20px 0; color: var(--text-secondary); max-width: 400px; font-size: 13.5px;">You must complete the dataset analysis loop to compile executive decks.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 22px;">Executive Report Generator</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 13px;">Compile dynamic PDF briefings and structured PPTX slide decks.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; flex-grow: 1;">
+                        <!-- PDF -->
+                        <div class="glass-panel" style="padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                            <i class="fa-solid fa-file-pdf" style="font-size: 64px; color: var(--accent-red); margin-bottom: 20px;"></i>
+                            <h4 style="margin: 0 0 8px 0; font-size: 18px;">Compile Executive PDF Summary</h4>
+                            <p style="margin: 0 0 24px 0; color: var(--text-secondary); font-size: 13px; max-width: 320px;">Compiles dataset parameters, AutoML models leaderboard, and anomaly metrics into a ReportLab PDF.</p>
+                            <button class="btn-glass-primary" id="btn-compile-pdf" onclick="compileReport('pdf')">Compile PDF Briefing</button>
+                            
+                            <!-- PDF compile progress -->
+                            <div id="pdf-progress-container" style="display: none; width: 80%; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px;">
+                                    <span>Rendering canvas...</span>
+                                    <span id="pdf-progress-percent">0%</span>
+                                </div>
+                                <div style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 99px; overflow: hidden;">
+                                    <div id="pdf-progress-bar" style="width: 0%; height: 100%; background: var(--accent-red); transition: width 0.1s ease;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PPT -->
+                        <div class="glass-panel" style="padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                            <i class="fa-solid fa-file-powerpoint" style="font-size: 64px; color: var(--accent-purple); margin-bottom: 20px;"></i>
+                            <h4 style="margin: 0 0 8px 0; font-size: 18px;">Generate Presentation Slides</h4>
+                            <p style="margin: 0 0 24px 0; color: var(--text-secondary); font-size: 13px; max-width: 320px;">Builds structured PowerPoint decks summarizing core data insights and model predictions.</p>
+                            <button class="btn-glass-primary" id="btn-compile-pptx" onclick="compileReport('pptx')">Generate PPTX Deck</button>
+
+                            <!-- PPTX compile progress -->
+                            <div id="pptx-progress-container" style="display: none; width: 80%; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px;">
+                                    <span>Building slides...</span>
+                                    <span id="pptx-progress-percent">0%</span>
+                                </div>
+                                <div style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 99px; overflow: hidden;">
+                                    <div id="pptx-progress-bar" style="width: 0%; height: 100%; background: var(--accent-purple); transition: width 0.1s ease;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Features Grid -->
+    <section id="features" class="section-container">
+        <h2 class="section-title">⚡ Platform Engine Core Capabilities</h2>
+        <p class="section-subtitle">
+            AEDIP coordinates state-of-the-art analytical components for commercial scale deployment.
+        </p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">AI Data Preprocessing</h3>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
+                    Automatically discovers schema models. Imputes missing fields via median/mode metrics and filters skewness or outliers via Isolation Forest percentiles.
+                </p>
+            </div>
+            <div class="feature-card green">
+                <div class="feature-icon-wrapper"><i class="fa-solid fa-microchip"></i></div>
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">AutoML Model Fits</h3>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
+                    Fits regression and classification targets using Random Forests, Extra Trees, Gradient Boosting, and XGBoost, ranking parameter fits on a metric leaderboard.
+                </p>
+            </div>
+            <div class="feature-card purple">
+                <div class="feature-icon-wrapper"><i class="fa-solid fa-chart-line"></i></div>
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">Explainable AI (XAI)</h3>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
+                    Maps localized pertubations onto model coefficients, calculating feature weights so analysts understand black-box modeling choices.
+                </p>
+            </div>
+            <div class="feature-card red">
+                <div class="feature-icon-wrapper"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">Enterprise Security</h3>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
+                    Secures relational sessions via stateless Bearer JSON Web Tokens (JWT), filters NoSQL injections, and implements strict Role-Based Access Controls (RBAC).
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Local Quickstart / Setup Guide -->
+    <section id="quickstart" class="section-container">
+        <h2 class="section-title">⚙️ Local Installation Guide</h2>
+        <p class="section-subtitle">
+            Deploy the complete Python backend, MongoDB document storage, and Django endpoints on your local system.
+        </p>
+
+        <div class="docs-block">
+            <h3>1. Prepare Environment & Workspace</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">Open a terminal, navigate to your workspace directory, and initialize a local Python virtual environment to prevent dependency conflicts:</p>
+            
+            <div class="docs-code-container">
+                <pre class="docs-code"># Navigate to workspace
+cd "c:\Users\csp\OneDrive\Documents\AI Enterprise Decision Intelligence"
+
+# Initialize virtual environment
+python -m venv .venv
+
+# Activate environment (Windows)
+.venv\Scripts\activate
+
+# Activate environment (macOS/Linux)
+source .venv/bin/activate</pre>
+                <button class="copy-code-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+
+            <h3>2. Install System Dependencies</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">Install all backend Django controllers, scikit-learn AutoML pipelines, reporting libraries, and database connectors:</p>
+
+            <div class="docs-code-container">
+                <pre class="docs-code">pip install -r requirements.txt</pre>
+                <button class="copy-code-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+
+            <h3>3. Ensure MongoDB & Services are Active</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">AEDIP stores unstructured projects and datasets in MongoDB. Ensure your local server is active on standard port `27017`:</p>
+
+            <div class="docs-code-container">
+                <pre class="docs-code"># Method A: Check native Windows MongoDB service
+Get-Service -Name MongoDB
+
+# Method B: Start via Docker Compose (includes Redis for Celery)
+docker-compose up -d</pre>
+                <button class="copy-code-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+
+            <h3>4. Run Relational Database Migrations</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">Initialize relational tables for administrative users, login security parameters, and audit logging on SQLite:</p>
+
+            <div class="docs-code-container">
+                <pre class="docs-code">python manage.py migrate</pre>
+                <button class="copy-code-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+
+            <h3>5. Startup Development Server</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">Fire up the web engine locally and visit the platform dashboard:</p>
+
+            <div class="docs-code-container">
+                <pre class="docs-code"># Start server
+python manage.py runserver 127.0.0.1:8000</pre>
+                <button class="copy-code-btn" onclick="copySnippet(this)">Copy</button>
+            </div>
+            
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5; margin-top: 15px;">
+                Open <a href="http://127.0.0.1:8000/" target="_blank" style="color: var(--accent-blue); text-decoration: underline;">http://127.0.0.1:8000/</a> in your browser. Register an account, log in, create a workspace project, and start modeling!
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p style="margin: 0 0 10px 0; font-weight: 600; color: var(--text-primary);">AI Enterprise Decision Intelligence Platform (AEDIP)</p>
+        <p style="margin: 0; font-size: 12px;">Constructed for commercial portfolio deployments. Python • Django • MongoDB • Scikit-Learn • Docker</p>
+    </footer>
+
+    <!-- Interactive JS Logic -->
+    <script>
+        // Tab switching logic
+        function switchSandboxTab(event, tabId) {
+            if (event) event.preventDefault();
+            
+            const link = event ? event.currentTarget : null;
+            if (link && link.classList.contains('disabled')) {
+                return;
+            }
+
+            // Remove active from all items
+            document.querySelectorAll('.sandbox-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Add active to current
+            if (link) {
+                link.classList.add('active');
+            } else {
+                // programmatic
+                const menuId = tabId.replace('tab-', 'menu-');
+                const targetMenu = document.getElementById(menuId);
+                if (targetMenu) targetMenu.classList.add('active');
+            }
+
+            // Hide all tabs
+            document.querySelectorAll('.sandbox-tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            // Show target
+            document.getElementById(tabId).classList.add('active');
+
+            // Trigger specific chart initializations if visible
+            if (tabId === 'tab-dashboard') {
+                initDashboardCharts();
+            } else if (tabId === 'tab-forecasting') {
+                initForecastingChart();
+            } else if (tabId === 'tab-fraud') {
+                initFraudChart();
+            }
+        }
+
+        // Copy setup code blocks
+        function copySnippet(button) {
+            const container = button.closest('.docs-code-container');
+            const code = container.querySelector('.docs-code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+            });
+        }
+
+        // In-memory mock datasets
+        const rawDatasets = {
+            sales: [
+                { id: 1, date: "2025-01-01", region: "East", cat: "Electronics", prod: "Wireless Mouse", qty: null, price: 41.25, sales: 165.00, profit: null },
+                { id: 2, date: "2025-01-02", region: "East", cat: "Furniture", prod: "Bookcase", qty: 1.0, price: 14.17, sales: 14.17, profit: 6.16 },
+                { id: 3, date: "2025-01-03", region: "East", cat: "Furniture", prod: "Desk", qty: 9.0, price: 68.73, sales: 618.57, profit: 225.92 },
+                { id: 4, date: "2025-01-04", region: "North", cat: "Electronics", prod: "Smartphone", qty: 7.0, price: 57.64, sales: 403.48, profit: 182.92 },
+                { id: 5, date: "2025-01-05", region: "North", cat: "Electronics", prod: "Laptop", qty: 7.0, price: 1108.50, sales: 7759.50, profit: 2474.37 },
+                { id: 6, date: "2025-01-06", region: "East", cat: "Furniture", prod: "Bookcase", qty: 9.0, price: 27.48, sales: 247.32, profit: 55.23 },
+                { id: 7, date: "2025-01-07", region: "East", cat: "Furniture", prod: "Table Lamp", qty: 10.0, price: 133.96, sales: 1339.60, profit: 524.47 },
+                { id: 8, date: "2025-01-08", region: "West", cat: "Furniture", prod: "Office Chair", qty: 1.0, price: 102.58, sales: 102.58, profit: 27.50 },
+                { id: 9, date: "2025-01-09", region: "East", cat: "Electronics", prod: "Laptop", qty: 7.0, price: 981.41, sales: 6869.87, profit: 2683.03 },
+                { id: 10, date: "2025-01-10", region: "North", cat: "Office Supplies", prod: "Gel Pens", qty: 5.0, price: 108.25, sales: 541.25, profit: 159.63 }
+            ],
+            fraud: [
+                { id: "TXN_10000", amount: 70.39, age: 64, failed: 0, score: 0.04 },
+                { id: "TXN_10001", amount: 451.52, age: 59, failed: 2, score: 0.28 },
+                { id: "TXN_10002", amount: 197.51, age: 22, failed: 0, score: 0.08 },
+                { id: "TXN_10003", amount: 136.94, age: 34, failed: 0, score: 0.05 },
+                { id: "TXN_10015", amount: 9362.90, age: 99, failed: 5, score: 0.94 },
+                { id: "TXN_10011", amount: 525.53, age: 22, failed: 0, score: 0.32 },
+                { id: "TXN_10012", amount: 267.96, age: 61, failed: 1, score: 0.12 },
+                { id: "TXN_10013", amount: 35.80, age: 32, failed: 0, score: 0.02 },
+                { id: "TXN_10014", amount: 30.10, age: 45, failed: 2, score: 0.18 },
+                { id: "TXN_10016", amount: 54.41, age: 46, failed: 0, score: 0.03 }
+            ]
+        };
+
+        // State trackers
+        let currentDatasetType = null;
+        let isPreprocessed = false;
+        let isAutoMLTrained = false;
+        let activeDatasetRows = [];
+
+        function triggerFileUpload() {
+            document.getElementById('sandbox-file-input').click();
+        }
+
+        function handleSandboxFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Simulate parsing custom CSV, defaulting to Sales benchmark type for structure
+            currentDatasetType = 'sales';
+            isPreprocessed = false;
+            isAutoMLTrained = false;
+            activeDatasetRows = JSON.parse(JSON.stringify(rawDatasets.sales));
+            
+            // Give custom name
+            document.getElementById('dataset-preview-title').textContent = `Preview: ${file.name} (Uploaded)`;
+            initDatasetPreview();
+        }
+
+        function loadBenchmarkDataset(type) {
+            currentDatasetType = type;
+            isPreprocessed = false;
+            isAutoMLTrained = false;
+            activeDatasetRows = JSON.parse(JSON.stringify(rawDatasets[type]));
+            
+            // Adjust title
+            const filename = type === 'sales' ? 'sales_data.csv' : 'transactional_fraud_data.csv';
+            document.getElementById('dataset-preview-title').textContent = `Preview: ${filename}`;
+            
+            initDatasetPreview();
+
+            // Set select option matching dataset
+            const targetSelect = document.getElementById('automl-target-select');
+            if (type === 'fraud') {
+                targetSelect.innerHTML = `<option value="score">Risk Score (Numerical - Outlier Scan)</option>`;
+            } else {
+                targetSelect.innerHTML = `
+                    <option value="Profit">Profit (Numerical - Regressor Model)</option>
+                    <option value="Sales">Sales (Numerical - Regressor Model)</option>
+                `;
+            }
+        }
+
+        function initDatasetPreview() {
+            const container = document.getElementById('dataset-preview-container');
+            container.style.display = 'flex';
+            
+            // Reset locks
+            lockSandboxModules(true);
+
+            // Re-render status badge
+            const badge = document.getElementById('dataset-status-badge');
+            badge.style.background = 'rgba(239, 68, 68, 0.1)';
+            badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            badge.style.color = 'var(--accent-red)';
+            badge.textContent = 'Status: Uncleaned Raw Data';
+
+            // Reset run button
+            const cleanBtn = document.getElementById('btn-run-clean');
+            cleanBtn.disabled = false;
+            cleanBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles" style="margin-right: 6px;"></i> Run Preprocessing Pipeline`;
+
+            // Reset preprocessor logs
+            document.getElementById('preprocessor-terminal').innerHTML = `<div class="terminal-line">&gt; Dataset ingested successfully. Ingestion parsed headers. Click 'Run Preprocessing Pipeline'.</div>`;
+
+            renderPreviewTable();
+        }
+
+        function renderPreviewTable() {
+            const table = document.getElementById('preview-data-table');
+            table.innerHTML = '';
+
+            if (activeDatasetRows.length === 0) return;
+
+            // Build headers
+            const headers = Object.keys(activeDatasetRows[0]).filter(k => k !== 'id');
+            let headerHtml = '<tr>';
+            headers.forEach(h => {
+                headerHtml += `<th>${h.replace('_', ' ')}</th>`;
+            });
+            headerHtml += '</tr>';
+            table.innerHTML += headerHtml;
+
+            // Build rows
+            activeDatasetRows.forEach(row => {
+                let rowHtml = '<tr>';
+                headers.forEach(h => {
+                    const val = row[h];
+                    if (val === null) {
+                        rowHtml += `<td class="cell-missing" id="missing-${row.id || row.Transaction_ID}-${h}">N/A</td>`;
+                    } else if (isPreprocessed && h === 'qty' && row.id === 1) {
+                        rowHtml += `<td class="cell-imputed">4.0</td>`;
+                    } else if (isPreprocessed && h === 'profit' && row.id === 1) {
+                        rowHtml += `<td class="cell-imputed">60.25</td>`;
+                    } else if (currentDatasetType === 'fraud' && h === 'score' && val > 0.5) {
+                        rowHtml += `<td class="cell-anomaly">${val}</td>`;
+                    } else {
+                        rowHtml += `<td>${val}</td>`;
+                    }
+                });
+                rowHtml += '</tr>';
+                table.innerHTML += rowHtml;
+            });
+        }
+
+        function runPreprocessingPipeline() {
+            const terminal = document.getElementById('preprocessor-terminal');
+            const cleanBtn = document.getElementById('btn-run-clean');
+            cleanBtn.disabled = true;
+            cleanBtn.innerHTML = `<span class="loading-ring" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 6px;"></span> Processing...`;
+
+            let step = 0;
+            const logs = [
+                { text: "> Initiating AI Preprocessing Pipeline...", class: "" },
+                { text: "> Scanning structure... Found 8 operational attributes.", class: "" },
+                { text: "> Executing Central Imputation... Filling empty categories via Mode and numerics via Median.", class: "warn" },
+                { text: "> Outlier Scanning: Computing Isolation Forest matrices. Contamination threshold=5%.", class: "" },
+                { text: "> Feature Transformation: Applying StandardScaler scaling variables.", class: "warn" },
+                { text: "> Pipeline execution completed successfully. Data quality score adjusted: 62% ➔ 98%!", class: "success" }
+            ];
+
+            terminal.innerHTML = '';
+            
+            function printNextLog() {
+                if (step < logs.length) {
+                    const line = document.createElement('div');
+                    line.className = `terminal-line ${logs[step].class}`;
+                    line.textContent = logs[step].text;
+                    terminal.appendChild(line);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    step++;
+                    setTimeout(printNextLog, 600);
+                } else {
+                    completeCleaning();
+                }
+            }
+
+            printNextLog();
+        }
+
+        function completeCleaning() {
+            isPreprocessed = true;
+            
+            // Update status badge
+            const badge = document.getElementById('dataset-status-badge');
+            badge.style.background = 'rgba(16, 185, 129, 0.1)';
+            badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            badge.style.color = 'var(--accent-green)';
+            badge.textContent = 'Status: Fully Sanitized';
+
+            // Re-render table showing filled values
+            renderPreviewTable();
+
+            // Enable navigation links
+            lockSandboxModules(false);
+            
+            // Re-enable run btn
+            const cleanBtn = document.getElementById('btn-run-clean');
+            cleanBtn.innerHTML = `<i class="fa-solid fa-check" style="margin-right: 6px;"></i> Preprocessing Complete`;
+        }
+
+        function lockSandboxModules(locked) {
+            const ids = ['menu-dashboard', 'menu-automl', 'menu-forecasting', 'menu-fraud', 'menu-nlp', 'menu-reports'];
+            const lockOverlays = ['lock-dashboard', 'lock-automl', 'lock-forecasting', 'lock-fraud', 'lock-nlp', 'lock-reports'];
+
+            ids.forEach(id => {
+                const link = document.getElementById(id);
+                if (locked) {
+                    link.classList.add('disabled');
+                } else {
+                    // Only unlock matching ones (e.g. Fraud Scanner is specific to the fraud dataset)
+                    if (id === 'menu-fraud' && currentDatasetType !== 'fraud') {
+                        link.classList.add('disabled');
+                    } else if (id === 'menu-forecasting' && currentDatasetType !== 'sales') {
+                        link.classList.add('disabled');
+                    } else {
+                        link.classList.remove('disabled');
+                    }
+                }
+            });
+
+            lockOverlays.forEach(overlayId => {
+                const overlay = document.getElementById(overlayId);
+                if (locked) {
+                    overlay.style.display = 'flex';
+                } else {
+                    // Match overlay checks
+                    if (overlayId === 'lock-fraud' && currentDatasetType !== 'fraud') {
+                        overlay.style.display = 'flex';
+                    } else if (overlayId === 'lock-forecasting' && currentDatasetType !== 'sales') {
+                        overlay.style.display = 'flex';
+                    } else {
+                        overlay.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // AutoML logic
+        function runAutoMLPipeline() {
+            const terminal = document.getElementById('automl-terminal');
+            const runBtn = document.getElementById('btn-run-automl');
+            runBtn.disabled = true;
+            runBtn.innerHTML = `<span class="loading-ring" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 6px;"></span> Executing...`;
+
+            let step = 0;
+            const logs = [
+                { text: "> Setting AutoML run parameters...", class: "" },
+                { text: "> Separating independent features... Fitting 8 feature attributes.", class: "" },
+                { text: "> Fitting Model 1/6: Random Forest Regressor... Complete. Accuracy: R²=0.884", class: "" },
+                { text: "> Fitting Model 2/6: Decision Tree Regressor... Complete. Accuracy: R²=0.742", class: "warn" },
+                { text: "> Fitting Model 3/6: Extra Trees Regressor... Complete. Accuracy: R²=0.908", class: "" },
+                { text: "> Fitting Model 4/6: Gradient Boosting Regressor... Complete. Accuracy: R²=0.912", class: "" },
+                { text: "> Fitting Model 5/6: XGBoost Regressor... Complete. Accuracy: R²=0.941", class: "success" },
+                { text: "> Fitting Model 6/6: Linear Baseline Model... Complete. Accuracy: R²=0.690", class: "warn" },
+                { text: "> Ranking Model Performance Leaderboard... Done.", class: "" },
+                { text: "> Serialization: Packing XGBoost parameters (R²: 0.941) to disk.", class: "success" }
+            ];
+
+            terminal.innerHTML = '';
+            
+            function printNextLog() {
+                if (step < logs.length) {
+                    const line = document.createElement('div');
+                    line.className = `terminal-line ${logs[step].class}`;
+                    line.textContent = logs[step].text;
+                    terminal.appendChild(line);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    step++;
+                    setTimeout(printNextLog, 500);
+                } else {
+                    completeAutoML();
+                }
+            }
+
+            printNextLog();
+        }
+
+        function completeAutoML() {
+            isAutoMLTrained = true;
+            const runBtn = document.getElementById('btn-run-automl');
+            runBtn.disabled = false;
+            runBtn.innerHTML = `<i class="fa-solid fa-microchip" style="margin-right: 6px;"></i> Re-Run AutoML`;
+
+            // Populate leaderboard
+            const tbody = document.getElementById('automl-leaderboard-tbody');
+            tbody.innerHTML = `
+                <tr style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--accent-green);">
+                    <td>1</td>
+                    <td><strong>XGBoost Regressor</strong> <span style="font-size: 9.5px; color: var(--accent-green); background: rgba(16, 185, 129, 0.15); padding: 2px 5px; border-radius: 3px; margin-left: 6px;">Winning</span></td>
+                    <td>0.941</td>
+                    <td>24.18</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Gradient Boosting Regressor</td>
+                    <td>0.912</td>
+                    <td>31.05</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Extra Trees Regressor</td>
+                    <td>0.908</td>
+                    <td>33.24</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Random Forest Regressor</td>
+                    <td>0.884</td>
+                    <td>38.90</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Decision Tree Regressor</td>
+                    <td>0.742</td>
+                    <td>58.12</td>
+                </tr>
+                <tr style="opacity: 0.5;">
+                    <td>6</td>
+                    <td>Linear Regression Baseline</td>
+                    <td>0.690</td>
+                    <td>71.40</td>
+                </tr>
+            `;
+        }
+
+        // Charts Cache
+        let charts = {};
+
+        // Dashboard tab charts setup
+        function initDashboardCharts() {
+            // Build KPI parameters
+            const grid = document.getElementById('dashboard-kpi-grid');
+            if (currentDatasetType === 'sales') {
+                grid.innerHTML = `
+                    <div class="kpi-metric-card">
+                        <div class="kpi-label">Cumulative Gross Sales</div>
+                        <div class="kpi-val">$18,485.44</div>
+                    </div>
+                    <div class="kpi-metric-card green">
+                        <div class="kpi-label">Net Profit Margin</div>
+                        <div class="kpi-val">$7,390.17</div>
+                    </div>
+                    <div class="kpi-metric-card purple">
+                        <div class="kpi-label">Data hygiene score</div>
+                        <div class="kpi-val">98%</div>
+                    </div>
+                    <div class="kpi-metric-card red">
+                        <div class="kpi-label">AutoML Status</div>
+                        <div class="kpi-val">Ready</div>
+                    </div>
+                `;
+            } else {
+                grid.innerHTML = `
+                    <div class="kpi-metric-card">
+                        <div class="kpi-label">Total Swept Transactions</div>
+                        <div class="kpi-val">122</div>
+                    </div>
+                    <div class="kpi-metric-card red">
+                        <div class="kpi-label">Flagged Anomalies</div>
+                        <div class="kpi-val">5</div>
+                    </div>
+                    <div class="kpi-metric-card purple">
+                        <div class="kpi-label">Avg Transaction Amount</div>
+                        <div class="kpi-val">$184.28</div>
+                    </div>
+                    <div class="kpi-metric-card green">
+                        <div class="kpi-label">Data Hygiene Score</div>
+                        <div class="kpi-val">100%</div>
+                    </div>
+                `;
+            }
+
+            // Chart 1: Distribution
+            if (charts.dashDist) charts.dashDist.destroy();
+            const ctxDist = document.getElementById('chart-dashboard-distribution').getContext('2d');
+            
+            const distLabels = currentDatasetType === 'sales' ? ['Electronics', 'Furniture', 'Office Supplies'] : ['Low Amount', 'Medium Amount', 'High Amount'];
+            const distData = currentDatasetType === 'sales' ? [15309.89, 2333.91, 1766.45] : [78, 39, 5];
+            const colors = ['#3b82f6', '#8b5cf6', '#10b981'];
+
+            charts.dashDist = new Chart(ctxDist, {
+                type: 'doughnut',
+                data: {
+                    labels: distLabels,
+                    datasets: [{
+                        data: distData,
+                        backgroundColor: colors,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.08)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } }
+                    }
+                }
+            });
+
+            // Chart 2: Trend
+            if (charts.dashTrend) charts.dashTrend.destroy();
+            const ctxTrend = document.getElementById('chart-dashboard-trend').getContext('2d');
+
+            const trendLabels = ['Jan 01', 'Jan 04', 'Jan 07', 'Jan 10', 'Jan 13', 'Jan 15'];
+            const dataset1 = currentDatasetType === 'sales' ? [165.00, 403.48, 1339.60, 541.25, 332.36, 457.20] : [70.39, 25.44, 301.68, 184.69, 35.80, 54.41];
+            const label1 = currentDatasetType === 'sales' ? 'Revenue ($)' : 'Amount ($)';
+
+            charts.dashTrend = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: label1,
+                        data: dataset1,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // Forecasting Chart Setup
+        function initForecastingChart() {
+            if (charts.forecast) charts.forecast.destroy();
+            const ctx = document.getElementById('chart-forecast-line').getContext('2d');
+
+            const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan (F)', 'Feb (F)', 'Mar (F)', 'Apr (F)', 'May (F)', 'Jun (F)', 'Jul (F)', 'Aug (F)', 'Sep (F)', 'Oct (F)', 'Nov (F)', 'Dec (F)'];
+            const historical = [1200, 1350, 1100, 1420, 1500, 1680, null, null, null, null, null, null, null, null, null, null, null, null];
+            
+            // Forecast starting Jan
+            const forecast = [null, null, null, null, null, 1680, 1720, 1790, 1840, 1910, 1980, 2040, 2110, 2180, 2240, 2310, 2370, 2430];
+            const confLow = [null, null, null, null, null, 1680, 1650, 1690, 1710, 1750, 1800, 1830, 1880, 1920, 1960, 2010, 2050, 2090];
+            const confHigh = [null, null, null, null, null, 1680, 1790, 1890, 1970, 2070, 2160, 2250, 2340, 2440, 2520, 2610, 2690, 2770];
+
+            // Limit data based on horizon slider (default is 6 months, index ranges to 6 + 5 = 11)
+            const horizon = parseInt(document.getElementById('slider-horizon').value);
+            const activeLength = 6 + horizon; // 6 historical + horizon forecast
+
+            const sliceMonths = months.slice(0, activeLength);
+            const sliceHistorical = historical.slice(0, activeLength);
+            const sliceForecast = forecast.slice(0, activeLength);
+            const sliceLow = confLow.slice(0, activeLength);
+            const sliceHigh = confHigh.slice(0, activeLength);
+
+            charts.forecast = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sliceMonths,
+                    datasets: [
+                        {
+                            label: 'Historical Sales',
+                            data: sliceHistorical,
+                            borderColor: '#3b82f6',
+                            borderWidth: 3,
+                            fill: false
+                        },
+                        {
+                            label: 'Forecast Trend (ARIMA)',
+                            data: sliceForecast,
+                            borderColor: '#a78bfa',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Confidence Upper',
+                            data: sliceHigh,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(167, 139, 250, 0.07)',
+                            fill: '+1', // Fill to next dataset
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Confidence Lower',
+                            data: sliceLow,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(167, 139, 250, 0.07)',
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function updateForecastHorizon(val) {
+            document.getElementById('val-horizon').textContent = `${val} months`;
+            initForecastingChart();
+        }
+
+        // Anomaly Scanner Chart and Table
+        function initFraudChart() {
+            const contamination = parseInt(document.getElementById('slider-contamination').value);
+            
+            // Categorize in-memory fraud data based on contamination threshold
+            // Sort by risk score descending
+            const sortedFraud = [...rawDatasets.fraud].sort((a, b) => b.score - a.score);
+            
+            // Risk score cut-off
+            const anomalyCount = Math.max(1, Math.round(sortedFraud.length * (contamination / 100)));
+            
+            // Render table
+            const tbody = document.getElementById('fraud-audit-tbody');
+            tbody.innerHTML = '';
+            
+            sortedFraud.forEach((txn, idx) => {
+                const isAnomaly = idx < anomalyCount;
+                const trClass = isAnomaly ? 'style="background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--accent-red);"' : '';
+                tbody.innerHTML += `
+                    <tr ${trClass}>
+                        <td><strong>${txn.id}</strong></td>
+                        <td>$${txn.amount.toFixed(2)}</td>
+                        <td>${txn.age}</td>
+                        <td>${txn.failed}</td>
+                        <td>
+                            <span style="color: ${isAnomaly ? 'var(--accent-red)' : 'var(--text-secondary)'}; font-weight: bold;">
+                                ${(txn.score * 100).toFixed(0)}% ${isAnomaly ? '⚠️' : ''}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Scatter chart
+            if (charts.fraudScatter) charts.fraudScatter.destroy();
+            const ctx = document.getElementById('chart-fraud-scatter').getContext('2d');
+
+            const normalPoints = [];
+            const anomalyPoints = [];
+
+            sortedFraud.forEach((txn, idx) => {
+                const isAnomaly = idx < anomalyCount;
+                const point = { x: txn.age, y: txn.amount };
+                if (isAnomaly) {
+                    anomalyPoints.push(point);
+                } else {
+                    normalPoints.push(point);
+                }
+            });
+
+            charts.fraudScatter = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Normal Transactions',
+                            data: normalPoints,
+                            backgroundColor: '#3b82f6',
+                            pointRadius: 6
+                        },
+                        {
+                            label: 'Flagged Outliers',
+                            data: anomalyPoints,
+                            backgroundColor: '#ef4444',
+                            pointRadius: 8,
+                            pointStyle: 'triangle'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8' } }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Cardholder Age', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { title: { display: true, text: 'Amount ($)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function updateContaminationThreshold(val) {
+            document.getElementById('val-contamination').textContent = `${val}%`;
+            initFraudChart();
+        }
+
+        // NLP chat query system
+        const nlpSuggestions = {
+            sales: [
+                "Why did sales decrease in June?",
+                "Which region has the highest profit?",
+                "Show sales statistics by category."
+            ],
+            fraud: [
+                "Show list of high risk transactions.",
+                "What is the average transaction size?",
+                "Identify outliers matching age > 60."
+            ]
+        };
+
+        function populateNlpSuggestions() {
+            const container = document.getElementById('nlp-suggestions-container');
+            container.innerHTML = '';
+            
+            const list = nlpSuggestions[currentDatasetType] || [];
+            list.forEach(q => {
+                container.innerHTML += `<div class="suggestion-pill" onclick="clickNlpSuggestion('${q}')">${q}</div>`;
+            });
+        }
+
+        function clickNlpSuggestion(query) {
+            document.getElementById('nlp-chat-input').value = query;
+            sendNlpChatQuery();
+        }
+
+        function handleNlpInputKeyPress(e) {
+            if (e.key === 'Enter') sendNlpChatQuery();
+        }
+
+        function sendNlpChatQuery() {
+            const input = document.getElementById('nlp-chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const chatBox = document.getElementById('nlp-chat-box');
+            
+            // Print user bubble
+            chatBox.innerHTML += `<div class="message-bubble user">${query}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Generate answer dynamically based on keywords
+            let response = "I couldn't map that query to the active dataset indices. Please check the suggestion boxes for supported templates.";
+            
+            const qLower = query.toLowerCase();
+            if (currentDatasetType === 'sales') {
+                if (qLower.includes('sales decrease') || qLower.includes('june')) {
+                    response = `<strong>Analytical Interpretation:</strong> Monthly historical aggregate slices show that Gross Sales decreased by <strong>14.2%</strong> in June compared to May.<br/><br/>
+                    <strong>Contributing Heuristics (XAI Perturbation):</strong><br/>
+                    • Office Supplies segment sales dropped by $412.00 due to stock depletion.<br/>
+                    • Region: East had the highest contribution variance (-$890.00).<br/>
+                    • Top affected product line: <em>Bookcases</em>.`;
+                } else if (qLower.includes('region') || qLower.includes('highest profit')) {
+                    response = `<strong>Analytical Interpretation:</strong> pandas dataframe aggregation returns the following regional summary ranked by net profit margins:<br/><br/>
+                    <strong>Region Profit Breakdown:</strong><br/>
+                    1. <strong>East:</strong> Total Profit $4,059.24 (Margin: 21.9%)<br/>
+                    2. <strong>North:</strong> Total Profit $3,001.59 (Margin: 16.2%)<br/>
+                    3. <strong>West:</strong> Total Profit $282.64 (Margin: 1.5%)<br/>
+                    4. <strong>South:</strong> Total Profit $254.23 (Margin: 1.3%)`;
+                } else if (qLower.includes('statistics') || qLower.includes('category')) {
+                    response = `<strong>Category Statistics (Cleaned DataFrame):</strong><br/>
+                    • <strong>Electronics:</strong> Sum $15,309.89 | Median Qty: 7.0<br/>
+                    • <strong>Furniture:</strong> Sum $2,333.91 | Median Qty: 9.0<br/>
+                    • <strong>Office Supplies:</strong> Sum $1,766.45 | Median Qty: 5.5`;
+                }
+            } else if (currentDatasetType === 'fraud') {
+                if (qLower.includes('high risk') || qLower.includes('list')) {
+                    response = `<strong>Isolation Forest Sweep Results:</strong> Swiping dataset transactions identified <strong>1 high-risk anomaly</strong> matching threshold contamination requirements:<br/><br/>
+                    <strong>Outlier Details:</strong><br/>
+                    • <strong>ID:</strong> TXN_10015 | <strong>Risk Score:</strong> 94%<br/>
+                    • <strong>Amount:</strong> $9,362.90 (exceeds 99.8th percentile standard deviation limits)<br/>
+                    • <strong>Failed Login Attempts:</strong> 5 (Security anomaly threshold matched)`;
+                } else if (qLower.includes('average') || qLower.includes('size')) {
+                    response = `<strong>Transactional Averages:</strong><br/>
+                    • Average Amount: $184.28<br/>
+                    • Average Age: 42.5 years<br/>
+                    • Average Failed Login Attempts: 0.8 per session`;
+                } else if (qLower.includes('outliers') || qLower.includes('60')) {
+                    response = `<strong>Age-Restricted Sweep:</strong> Out of 10 scanned records, 4 relate to cardholders over 60. Within this subset, transaction <strong>TXN_10015</strong> is flagged as an anomaly ($9,362.90, age 99, 5 failed attempts).`;
+                }
+            }
+
+            // Simulate typing delay
+            chatBox.innerHTML += `<div class="message-bubble ai" id="nlp-typing"><span class="loading-ring" style="width:10px; height:10px; border-width:1.5px; border-top-color:var(--accent-blue);"></span> Synthesizing response...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            setTimeout(() => {
+                const typingBubble = document.getElementById('nlp-typing');
+                if (typingBubble) typingBubble.remove();
+                
+                chatBox.innerHTML += `<div class="message-bubble ai">${response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 800);
+        }
+
+        // Compile reports progress bars
+        function compileReport(format) {
+            const btn = document.getElementById(`btn-compile-${format}`);
+            btn.disabled = true;
+
+            const progressContainer = document.getElementById(`${format}-progress-container`);
+            progressContainer.style.display = 'block';
+
+            const progressBar = document.getElementById(`${format}-progress-bar`);
+            const progressPercent = document.getElementById(`${format}-progress-percent`);
+
+            let percent = 0;
+            const interval = setInterval(() => {
+                percent += 5;
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${percent}%`;
+
+                if (percent >= 100) {
+                    clearInterval(interval);
+                    completeReportCompilation(format, btn);
+                }
+            }, 60);
+        }
+
+        function completeReportCompilation(format, btn) {
+            btn.innerHTML = `<i class="fa-solid fa-download" style="margin-right: 6px;"></i> Download ${format.toUpperCase()}`;
+            btn.disabled = false;
+            
+            // Set link target to sample downloads
+            btn.onclick = () => {
+                window.open('media/samples/sales_data.csv', '_blank');
+            };
+        }
+
+        // Initialize first dataset on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBenchmarkDataset('sales');
+            populateNlpSuggestions();
+        });
+    </script>
+</body>
+</html>

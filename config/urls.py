@@ -36,6 +36,12 @@ urlpatterns = [
     
     # Real-time Notifications
     path('notifications/', include('apps.notifications.urls')),
+    
+    # AI Engine (Explainability & Personas)
+    path('ai/', include('apps.ai_engine.urls')),
+    
+    # Global Search API
+    path('api/search/', include('utilities.search_urls')),
 ]
 
 # Serve media files in development

@@ -31,16 +31,31 @@ def initialize_db_indexes():
         return
         
     try:
+        # Organizations & Workspaces
+        db.organizations.create_index("name", unique=True)
+        db.workspaces.create_index("owner_id")
+        db.workspaces.create_index("organization_id")
+
         # Users indexes
         db.users.create_index("email", unique=True)
         db.users.create_index("role")
         
         # Projects indexes
         db.projects.create_index("owner_id")
+        db.projects.create_index("workspace_id")
         
         # Datasets indexes
         db.datasets.create_index("project_id")
         db.datasets.create_index("created_at")
+
+        # Dataset Versions & Data Quality
+        db.dataset_versions.create_index("dataset_id")
+        db.dataset_versions.create_index([("dataset_id", 1), ("version", 1)], unique=True)
+        db.data_quality_reports.create_index("dataset_id")
+
+        # Data Lineage
+        db.data_lineage.create_index("project_id")
+        db.data_lineage.create_index("dataset_id")
         
         # Models indexes
         db.models.create_index("project_id")
@@ -62,9 +77,20 @@ def initialize_db_indexes():
         # Saved Queries
         db.saved_queries.create_index("project_id")
         
-        # Notifications indexes
+        # Notifications & Alerts indexes
         db.notifications.create_index("user_id")
         db.notifications.create_index([("user_id", 1), ("is_read", 1)])
+        db.alerts.create_index("project_id")
+        db.alerts.create_index("timestamp")
+
+        # Conversations & Messages
+        db.conversations.create_index("project_id")
+        db.messages.create_index("conversation_id")
+
+        # Scenarios & Personas
+        db.scenarios.create_index("project_id")
+        db.scenarios.create_index("model_id")
+        db.business_personas.create_index("project_id")
         
         logger.info("Successfully initialized MongoDB database indexes.")
     except Exception as e:

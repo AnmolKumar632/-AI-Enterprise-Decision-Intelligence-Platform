@@ -2,7 +2,11 @@ from django.urls import path
 from apps.authentication import views
 
 urlpatterns = [
-    # UI Auth Pages
+    # UI Auth & Landing Pages
+    path('landing-page/', views.landing_page, name='auth_landing_page'),
+    path('solutions/', views.solutions_page, name='auth_solutions'),
+    path('call-center/', views.call_center_page, name='auth_call_center'),
+    path('architecture/', views.architecture_page, name='auth_architecture'),
     path('login-page/', views.login_page, name='auth_login_page'),
     path('register-page/', views.register_page, name='auth_register_page'),
     
